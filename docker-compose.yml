@@ -1,0 +1,65 @@
+# NSIN local stack: PostgreSQL + pgvector, the FastAPI backend and the React web app.
+#
+#   GEMINI_API_KEY=<your AI Studio key> docker compose up --build
+#
+# Web app: http://localhost:3000   API docs: http://localhost:8000/docs
+# Without GEMINI_API_KEY everything still runs; triage uses the offline rule engine only.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: nsin_db
+    environment:
+      POSTGRES_USER: nsin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nsin-local-dev}
+      POSTGRES_DB: nsin
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nsin -d nsin"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ./src
+      dockerfile: backend/Dockerfile
+    container_name: nsin_backend
+    ports:
+      - "8000:8080"
+    environment:
+      APP_ENV: development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: nsin
+      DB_USER: nsin
+      DB_PASSWORD: ${DB_PASSWORD:-nsin-local-dev}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-local_dev_only_change_me}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  web-app:
+    build:
+      context: ./src/web-app
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: nsin_webapp
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pg-data:

@@ -1,0 +1,6 @@
+line-length = 130
+
+[lint]
+select = ["F", "E9", "B"]
+# B008: FastAPI's `Depends(...)` / `Query(...)` in parameter defaults is the framework's documented pattern.
+ignore = ["B008"]
