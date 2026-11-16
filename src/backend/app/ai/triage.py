@@ -271,11 +271,12 @@ class SafetyTriageOrchestrator:
                 if more_severe(g.priority, priority) == g.priority:
                     category = g.category  # Gemini agrees or saw more risk: trust its reading of the text
                 priority = more_severe(g.priority, priority)
-                reasoning = f"{g.reasoning} (Rules: {rules['triage_reasoning']})"
+                reasoning = g.reasoning
                 checklist = [a for a in g.immediate_actions if a][:4] or checklist
                 missing = g.missing_information or missing
                 extracted_location = extracted_location or g.extracted_location
-                engine = f"gemini:{settings.GEMINI_MODEL}"
+                from backend.app.ai.gemini import last_model_used
+                engine = f"gemini:{getattr(last_model_used, 'value', settings.GEMINI_MODEL)}"
                 steps.append(f"gemini:{g.priority}")
             except Exception as exc:  # no key, quota, outage: the rule result stands
                 gemini_error = str(exc)[:200]

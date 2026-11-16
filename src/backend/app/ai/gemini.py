@@ -10,7 +10,8 @@ back to the deterministic rule-based path, so an SOS is never blocked by the mod
 """
 import logging
 import threading
-from typing import List, Optional, Type, TypeVar
+import time
+from typing import Dict, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -23,6 +24,11 @@ _client = None
 _client_key: Optional[tuple] = None
 _lock = threading.Lock()
 EMBED_BATCH = 50
+last_model_used = threading.local()
+# Models that just reported exhausted quota (429) or retirement (404) are skipped until this time.
+_cooldown: Dict[str, float] = {}
+QUOTA_COOLDOWN_SECONDS = 120
+RETIRED_COOLDOWN_SECONDS = 3600
 
 
 class GeminiUnavailable(RuntimeError):
@@ -45,7 +51,11 @@ def client():
             from google import genai
             from google.genai import types
 
-            http = types.HttpOptions(timeout=settings.GEMINI_TIMEOUT_SECONDS * 1000)
+            # One quick retry for transient overload (5xx). Quota errors (429) are not retried: the
+            # next model in the fallback list is tried instead.
+            retry = types.HttpRetryOptions(attempts=2, initial_delay=0.5, max_delay=2.0,
+                                           http_status_codes=[500, 502, 503, 504])
+            http = types.HttpOptions(timeout=settings.GEMINI_TIMEOUT_SECONDS * 1000, retry_options=retry)
             if settings.GOOGLE_GENAI_USE_VERTEXAI:
                 _client = genai.Client(vertexai=True, project=settings.GOOGLE_CLOUD_PROJECT,
                                        location=settings.GOOGLE_CLOUD_LOCATION, http_options=http)
@@ -60,24 +70,46 @@ def backend_name() -> str:
 
 
 def generate_json(prompt: str, schema: Type[T], system: str, temperature: float = 0.1) -> T:
-    """Structured output: Gemini returns JSON that is validated against the Pydantic `schema`."""
+    """Structured output: Gemini returns JSON that is validated against the Pydantic `schema`.
+
+    Tries GEMINI_MODEL, then each GEMINI_FALLBACK_MODELS entry, within a total budget of
+    GEMINI_BUDGET_SECONDS so an emergency report is never held up by a slow model. A model that
+    reports exhausted quota or retirement is skipped for a while instead of being retried."""
     from google.genai import types
 
-    try:
-        resp = client().models.generate_content(
-            model=settings.GEMINI_MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=system,
-                temperature=temperature,
-                response_mime_type="application/json",
-                response_schema=schema,
-            ),
+    started = time.monotonic()
+    resp, errors = None, []
+    for model in settings.gemini_models:
+        if _cooldown.get(model, 0) > time.time():
+            errors.append(f"{model}: cooling down after quota/retirement error")
+            continue
+        remaining = settings.GEMINI_BUDGET_SECONDS - (time.monotonic() - started)
+        if remaining < 2:
+            errors.append("time budget used up")
+            break
+        config = types.GenerateContentConfig(
+            system_instruction=system,
+            temperature=temperature,
+            response_mime_type="application/json",
+            response_schema=schema,
+            http_options=types.HttpOptions(timeout=int(min(remaining, settings.GEMINI_TIMEOUT_SECONDS) * 1000)),
         )
-    except GeminiUnavailable:
-        raise
-    except Exception as exc:
-        raise GeminiUnavailable(f"{type(exc).__name__}: {str(exc)[:200]}") from exc
+        try:
+            resp = client().models.generate_content(model=model, contents=prompt, config=config)
+            last_model_used.value = model
+            break
+        except GeminiUnavailable:
+            raise
+        except Exception as exc:
+            text = str(exc)
+            if text.startswith("429") or "RESOURCE_EXHAUSTED" in text:
+                _cooldown[model] = time.time() + QUOTA_COOLDOWN_SECONDS
+            elif "NOT_FOUND" in text or "no longer available" in text:
+                _cooldown[model] = time.time() + RETIRED_COOLDOWN_SECONDS
+            errors.append(f"{model}: {type(exc).__name__}: {text[:120]}")
+            logger.info("Gemini model %s unavailable: %s", model, text[:160])
+    if resp is None:
+        raise GeminiUnavailable("; ".join(errors)[:300])
     parsed = resp.parsed
     if isinstance(parsed, schema):
         return parsed

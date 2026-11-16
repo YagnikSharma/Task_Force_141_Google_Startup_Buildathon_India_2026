@@ -9,10 +9,13 @@ Built by **Team Task Force 141** for **Startup Buildathon India 2026** (Google D
 | | |
 |---|---|
 | Stage | Working MVP: Android app, web app and API |
-| AI | Gemini API (`gemini-2.5-flash`, structured output) + Gemini embeddings (`gemini-embedding-001`) |
+| AI | Gemini API (`gemini-3.8-flash`, with an automatic fallback chain; structured output) + Gemini embeddings (`gemini-embedding-001`) |
 | Google Cloud | Cloud Run · Cloud SQL for PostgreSQL + pgvector · Secret Manager · Cloud Build · Artifact Registry · Firebase Hosting |
 | Built with | Google AI Studio (prototype) · Google Antigravity (development and testing) |
 | Deploy guide | [docs/GOOGLE_CLOUD_SETUP.md](docs/GOOGLE_CLOUD_SETUP.md), written for first-time Google Cloud users |
+| Website | [nsin-google-landing](https://github.com/YagnikSharma/nsin-google-landing): the landing page plus the live app at `/app/`, on Firebase Hosting |
+
+![Gemini triages a Hinglish SOS: the rules said P3, Gemini escalated it to P1 and wrote the responder briefing](docs/screenshots/report-incident-gemini.png)
 
 ---
 
@@ -32,6 +35,17 @@ Built by **Team Task Force 141** for **Startup Buildathon India 2026** (Google D
 7. **Child commute and elder check-ins.** Expected-arrival windows and missed check-ins raise alerts.
 8. **Community intelligence.** Median and p90 response times, SLA breaches, hotspot ranking and incidents by hour, all computed in SQL.
 
+## Screenshots
+Captured from the running app (PostgreSQL + pgvector, real Gemini API).
+
+| Gemini triage of a Hinglish SOS | Admin: live Cloud SQL + Gemini status |
+|---|---|
+| ![Gemini triage](docs/screenshots/report-incident-gemini.png) | ![Admin dashboard](docs/screenshots/admin-dashboard.png) |
+| **Responder queue** | **Community analytics (SQL)** |
+| ![Responder dashboard](docs/screenshots/responder-dashboard.png) | ![Community insights](docs/screenshots/community-insights.png) |
+| **Resident home** | **Landing page** |
+| ![Resident dashboard](docs/screenshots/resident-dashboard.png) | ![Landing](docs/screenshots/landing.png) |
+
 ## Architecture
 
 ```mermaid
@@ -46,7 +60,7 @@ flowchart LR
     R[Hybrid retriever<br/>BM25 + vectors]
   end
   subgraph AI[Google AI]
-    G[Gemini 2.5 Flash<br/>structured JSON]
+    G[Gemini 3.8 Flash<br/>structured JSON]
     E[gemini-embedding-001<br/>768 dims]
   end
   subgraph Data[Google Cloud]

@@ -29,9 +29,10 @@ logger = logging.getLogger("neighbourhood_safety.retrieval")
 
 PASSAGE_TABLE = "protocol_passages"
 # Cosine-distance gates for the dense branch, calibrated on the protocol passages with
-# gemini-embedding-001 at 768 dims (see docs/AI_DESIGN.md); override with env vars if you change model.
-STRONG_MATCH = float(os.getenv("RETRIEVAL_STRONG_MATCH", "0.30"))
-MAX_DISTANCE = float(os.getenv("RETRIEVAL_MAX_DISTANCE", "0.36"))
+# gemini-embedding-001 at 768 dims: on-topic questions put the right protocol first at <= 0.40,
+# off-topic questions start at >= 0.46 (see docs/AI_DESIGN.md). Override with env vars if you change model.
+STRONG_MATCH = float(os.getenv("RETRIEVAL_STRONG_MATCH", "0.40"))
+MAX_DISTANCE = float(os.getenv("RETRIEVAL_MAX_DISTANCE", "0.43"))
 MIN_MARGIN = 0.02  # passages within this distance of the best one also count as vector hits
 RRF_K = 61
 

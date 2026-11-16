@@ -108,6 +108,17 @@ def test_briefing_is_written_by_gemini_and_grounded(client, resident):
     body = res.json()
     assert body["briefing_error"] is None, body["briefing_error"]
     b = body["briefing"]
-    assert b["model"] == settings.GEMINI_MODEL and len(b["summary"]) > 20
+    assert b["model"] in settings.gemini_models and len(b["summary"]) > 20
     assert b["advice"].startswith("1.") and "3." in b["advice"]
     assert b["cited_protocols"] and b["grounded"] is True, b["source"]
+
+
+@needs_gemini
+def test_retired_model_falls_back_to_the_next_gemini_model(monkeypatch):
+    """A model name Google does not serve (a real 404) is skipped and the fallback model answers."""
+    from backend.app.ai import gemini as g
+    monkeypatch.setattr(settings, "GEMINI_MODEL", "gemini-model-that-does-not-exist")
+    monkeypatch.setattr(g, "_cooldown", {})
+    out = triage_orchestrator.run_incident_assistance_workflow("Streetlight broken on Lane 4")
+    assert out["ai_engine"].startswith("gemini:") and "does-not-exist" not in out["ai_engine"], out["gemini_error"]
+    assert g._cooldown.get("gemini-model-that-does-not-exist", 0) > 0   # skipped on the next call

@@ -29,7 +29,7 @@ graph TD
     end
 
     subgraph GAI["Google AI"]
-        GEM["Gemini 2.5 Flash<br/>structured output"]
+        GEM["Gemini 3.8 Flash<br/>structured output"]
         EMB["gemini-embedding-001<br/>768 dims"]
     end
     TRI --> GEM

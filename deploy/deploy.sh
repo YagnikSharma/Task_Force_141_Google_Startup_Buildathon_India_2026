@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Build and deploy NSIN to Google Cloud. Run in Google Cloud Shell after deploy/setup.sh:
-#   bash deploy/deploy.sh            # API on Cloud Run + web app on Firebase Hosting
-#   SKIP_WEB=1 bash deploy/deploy.sh # API only
+# Build and deploy the NSIN API to Cloud Run. Run in Google Cloud Shell after deploy/setup.sh:
+#   bash deploy/deploy.sh                # API on Cloud Run
+#   DEPLOY_WEB=1 bash deploy/deploy.sh   # also publish the bare web app to Firebase Hosting
+# The public site (landing page + the web app at /app/) is deployed from the nsin-google-landing repo.
 set -euo pipefail
 
 PROJECT_ID="${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
@@ -22,7 +23,9 @@ echo "==> API live at ${API_URL}"
 curl -fsS "${API_URL}/health" | head -c 400 || true
 echo
 
-if [[ "${SKIP_WEB:-0}" == "1" ]]; then
+if [[ "${DEPLOY_WEB:-0}" != "1" ]]; then
+  echo "Next: deploy the site with the web app at /app/:"
+  echo "  git clone https://github.com/YagnikSharma/nsin-google-landing.git && cd nsin-google-landing && bash deploy.sh"
   exit 0
 fi
 

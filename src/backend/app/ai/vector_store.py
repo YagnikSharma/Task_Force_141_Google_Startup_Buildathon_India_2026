@@ -18,8 +18,8 @@ from backend.app.core.config import settings
 logger = logging.getLogger("neighbourhood_safety.vectors")
 
 # Calibrated with gemini-embedding-001 (768 dims, SEMANTIC_SIMILARITY): two reports of the same
-# event sit below this cosine distance; different kinds of incidents sit above it.
-SIMILAR_INCIDENT_MAX_DISTANCE = float(os.getenv("SIMILAR_INCIDENT_MAX_DISTANCE", "0.20"))
+# event measured 0.03-0.09; different incidents 0.16 and above.
+SIMILAR_INCIDENT_MAX_DISTANCE = float(os.getenv("SIMILAR_INCIDENT_MAX_DISTANCE", "0.12"))
 
 
 @dataclass

@@ -19,7 +19,10 @@ Put `GEMINI_API_KEY=...` in `src/backend/.env` (see [GOOGLE_CLOUD_SETUP.md](GOOG
 
 | Run | Result | Coverage |
 |---|---|---|
-| Without a Gemini key | **75 passed, 9 skipped** (all 9 need the key) | 92% of `src/backend/app` |
+| With the real Gemini API (17 Nov 2026) | **85 tests: 84 passed in the full run; 1 failed once.** That test's Gemini call hit a free-tier `504 DEADLINE_EXCEEDED` (the rule fallback answered as designed), and it passed on rerun | **96%** of `src/backend/app` |
+| Without a Gemini key | 75 passed, 10 skipped (all need the key) | 92% |
+
+The free tier has low daily quotas. After several full runs, the bigger models answer `429 RESOURCE_EXHAUSTED`, and NSIN falls back to the next model in `GEMINI_FALLBACK_MODELS`. This is visible in `ai_engine`, for example `gemini:gemini-3.1-flash-lite`.
 
 ## What each file proves
 
@@ -30,7 +33,7 @@ Put `GEMINI_API_KEY=...` in `src/backend/.env` (see [GOOGLE_CLOUD_SETUP.md](GOOG
 | `test_care.py` | Child journeys and elder check-ins |
 | `test_triage.py` | The offline rule engine: 10 wording traps, escalation vs standard branch, location fallback, the cited protocol per category, and the "never downgrade" merge rule |
 | `test_retrieval.py` | Passage splitting, BM25 ranking and filters, category and audience filters, passage citations, stop-word queries, API validation, hybrid status |
-| `test_gemini.py` | Gemini embeddings (768 dims). Hinglish SOS escalated to P1 where the keywords alone under-rate it. Gemini can't downgrade a knife attack. The incident-assistance API returns Gemini's analysis. A grounded Gemini briefing. Fallback to rules with no key and with a rejected key. Briefing degradation and the off switch |
+| `test_gemini.py` | A retired model name falls back to the next Gemini model (a real 404). Gemini embeddings (768 dims). Hinglish SOS escalated to P1 where the keywords alone under-rate it. Gemini can't downgrade a knife attack. The incident-assistance API returns Gemini's analysis. A grounded Gemini briefing. Fallback to rules with no key and with a rejected key. Briefing degradation and the off switch |
 | `test_platform_features.py` | SQL analytics: exact median and p90, hotspots, SLA breaches. Schema, `vector` columns and HNSW indexes. pgvector cosine distance. Live health. Semantic retrieval and off-topic rejection. Duplicate-report linking. The `nsin_app` role is denied DDL and audit tampering |
 
 ## Static checks

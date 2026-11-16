@@ -220,6 +220,11 @@ export const ReportIncidentPage: React.FC = () => {
                 <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
                   <span className="text-slate-400 block text-[10px] uppercase font-bold">Suggested Priority</span>
                   <span className="text-amber-400 font-bold text-sm">{aiResult.suggested_priority}</span>
+                  {aiResult.rule_priority && aiResult.rule_priority !== aiResult.suggested_priority && (
+                    <span className="block text-[10px] text-blue-300 mt-0.5">
+                      Keyword rules said {aiResult.rule_priority}; Gemini escalated it (Gemini can raise a priority, never lower it).
+                    </span>
+                  )}
                   <p className="text-[11px] text-slate-300 mt-1">{aiResult.triage_reasoning}</p>
                 </div>
 

@@ -72,21 +72,37 @@ bash deploy/setup.sh
 - Creating the database takes **5–10 minutes**. That's normal.
 - If Cloud Shell asks you to **Authorize**, click **Authorize**.
 
-### B6. Deploy
+### B6. Deploy the API to Cloud Run
 ```bash
 bash deploy/deploy.sh
 ```
-- **Cloud Build** builds the API container and deploys it to **Cloud Run** in Mumbai (`asia-south1`).
-- The web app is built and published to **Firebase Hosting**. The first time, Firebase may ask you to log in. Run `firebase login --no-localhost`, open the link, sign in, and paste the code back.
-- At the end you'll see two links:
-  - Web app: `https://<project-id>.web.app`
-  - API: `https://nsin-api-xxxxx-el.a.run.app/docs`
+- **Cloud Build** builds the API container and deploys it to **Cloud Run** in Mumbai (`asia-south1`). It takes about 5 minutes the first time.
+- At the end you'll see the API link, like `https://nsin-api-xxxxx-el.a.run.app`. Open `/health` on it: you should see `"status": "healthy"` and `"gemini": {"configured": true ...}`.
 
-Open the web app and sign in with a demo account, such as `resident@neighbourhood.org` with password `Password123!`.
+### B7. Publish the website on Firebase Hosting (the landing page + the app at `/app/`)
+Firebase Hosting is Google's free website host. The first time only:
+1. Open **https://console.firebase.google.com**, click **Create a project** → **Add Firebase to a Google Cloud project**, and pick your project (`nsin-buildathon-...`). Accept the terms, skip Google Analytics, and click **Continue** until it's done.
+2. Back in Cloud Shell, log the Firebase tool in:
+   ```bash
+   firebase login --no-localhost
+   ```
+   It prints a link. Open it, choose your Google account, click **Allow**, copy the code it shows, and paste it back into Cloud Shell.
+   (If Cloud Shell says `firebase: command not found`, run `npm install -g firebase-tools` first.)
 
-### B7. Updating after code changes
+Then deploy the site:
 ```bash
-cd Task_Force_141_Google_Startup_Buildathon_India_2026 && git pull && bash deploy/deploy.sh
+cd ~ && git clone https://github.com/YagnikSharma/nsin-google-landing.git && cd nsin-google-landing
+bash deploy.sh
+```
+- The script finds your Cloud Run API, writes its address into `live.json`, builds the site and publishes it.
+- At the end: **`https://<project-id>.web.app`**. The status pill at the top turns green (**LIVE · CLOUD RUN**), and the real app runs at `/app/`.
+
+Open `/app/` and sign in with a one-click demo account, such as **Resident · Priya Sharma**.
+
+### Updating after code changes
+```bash
+cd ~/Task_Force_141_Google_Startup_Buildathon_India_2026 && git pull && bash deploy/deploy.sh   # API
+cd ~/nsin-google-landing && git pull && bash deploy.sh                                       # site
 ```
 
 ### B8. Stop all costs (after the event)
@@ -103,7 +119,7 @@ Or delete the whole project: ☰ → **IAM & Admin** → **Settings** → **Shut
 | Google product | Used for |
 |---|---|
 | Google AI Studio | Prototyping prompts and schemas; issuing the Gemini API key |
-| Gemini API (`gemini-2.5-flash`) | Triage with structured JSON output, and responder briefings |
+| Gemini API (`gemini-3.8-flash`) | Triage with structured JSON output, and responder briefings |
 | Gemini embeddings (`gemini-embedding-001`) | Protocol search and related-incident search (768-dim vectors) |
 | Cloud Run | The FastAPI backend: autoscaling, HTTPS, scales to zero |
 | Cloud SQL for PostgreSQL + pgvector | All data, vector search and analytics SQL |
@@ -119,5 +135,6 @@ Or delete the whole project: ☰ → **IAM & Admin** → **Settings** → **Shut
 | `PERMISSION_DENIED ... billing` | The project has no billing account. Go to ☰ → Billing → **Link a billing account**. |
 | `API ... has not been used in project` | Run `bash deploy/setup.sh` again; it enables the APIs. |
 | Cloud Run shows `degraded` in `/health` | Run `gcloud run services logs read nsin-api --region=asia-south1 --limit=50` and check for a database password or Cloud SQL connection error. |
-| `429 RESOURCE_EXHAUSTED` from Gemini | That's the free-tier rate limit. Wait a minute. Triage keeps working through the rule engine. |
+| `429 RESOURCE_EXHAUSTED` from Gemini | That's the free-tier quota. NSIN skips that model for two minutes and tries the next one (`GEMINI_FALLBACK_MODELS`), and triage keeps working through the rule engine. For a demo day, link a billing account to the AI Studio project: paid tier 1 has much higher limits. |
 | Firebase `HTTP Error: 403` | Run `firebase login --reauth` and make sure you picked the same Google account. |
+| Site pill says **RECORDED MODE** | `live.json` has no API URL. Deploy the API first (B6), then run `bash deploy.sh` in the site repo again. |

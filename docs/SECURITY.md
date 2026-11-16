@@ -41,7 +41,7 @@ The API's login is a member of this role (`CREATE ROLE nsin_api LOGIN ... IN ROL
 
 ## 4. Privacy by design
 - **Minimum data to the model.** Gemini receives the report text and the location the app supplies. It never receives account details (name, phone, emergency medical notes).
-- **Free tier for demos only.** The free Gemini API tier may use prompts to improve Google products, so it's used with synthetic demo data only. Real resident data goes through Vertex AI or the paid tier (see [AI_DESIGN.md](AI_DESIGN.md#7-privacy)).
+- **Free tier for demos only.** The free Gemini API tier may use prompts to improve Google products, so it's used with synthetic demo data only. Real resident data goes through Vertex AI or the paid tier (see [AI_DESIGN.md](AI_DESIGN.md#8-privacy)).
 - **Data minimisation in responses.** Identities and coordinates are masked for non-owners, and responders' live location is never shown to residents.
 - **Android:** cleartext HTTP is allowed in **debug builds only**, and backups are disabled because the app stores a session token.
 

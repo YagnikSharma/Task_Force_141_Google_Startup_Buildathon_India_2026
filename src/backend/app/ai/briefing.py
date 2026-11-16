@@ -56,7 +56,7 @@ def run_briefing(report: str, triage: Dict[str, Any], protocols: Optional[List[D
         "source": b.source_protocol,
         "grounded": is_grounded(b.source_protocol, protocols),
         "cited_protocols": [p["title"] for p in protocols],
-        "model": settings.GEMINI_MODEL,
+        "model": getattr(gemini.last_model_used, "value", settings.GEMINI_MODEL),
         "backend": gemini.backend_name(),
         "duration_sec": round(time.time() - started, 2),
     }

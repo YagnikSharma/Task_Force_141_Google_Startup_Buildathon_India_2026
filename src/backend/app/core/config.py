@@ -65,10 +65,15 @@ class Settings:
     GOOGLE_GENAI_USE_VERTEXAI: bool = _flag("GOOGLE_GENAI_USE_VERTEXAI", "false")
     GOOGLE_CLOUD_PROJECT: str = os.getenv("GOOGLE_CLOUD_PROJECT", "")
     GOOGLE_CLOUD_LOCATION: str = os.getenv("GOOGLE_CLOUD_LOCATION", "asia-south1")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+    # Tried in order when the primary model is overloaded (503) or retired (404).
+    GEMINI_FALLBACK_MODELS: List[str] = [m.strip() for m in os.getenv(
+        "GEMINI_FALLBACK_MODELS", "gemini-3.5-flash,gemini-3.1-flash-lite").split(",") if m.strip()]
     GEMINI_EMBED_MODEL: str = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
     EMBEDDING_DIM: int = int(os.getenv("EMBEDDING_DIM", "768"))
-    GEMINI_TIMEOUT_SECONDS: int = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "30"))
+    GEMINI_TIMEOUT_SECONDS: int = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "12"))  # per request
+    # Total time Gemini may add to one triage or briefing before the rule result is returned alone.
+    GEMINI_BUDGET_SECONDS: float = float(os.getenv("GEMINI_BUDGET_SECONDS", "20"))
     ENABLE_GEMINI_TRIAGE: bool = _flag("ENABLE_GEMINI_TRIAGE")
     ENABLE_VECTOR_SEARCH: bool = _flag("ENABLE_VECTOR_SEARCH")
     ENABLE_LLM_BRIEFING: bool = _flag("ENABLE_LLM_BRIEFING")
@@ -76,6 +81,10 @@ class Settings:
     # Login throttling (per client IP + email)
     LOGIN_MAX_ATTEMPTS: int = int(os.getenv("LOGIN_MAX_ATTEMPTS", "5"))
     LOGIN_WINDOW_SECONDS: int = int(os.getenv("LOGIN_WINDOW_SECONDS", "300"))
+
+    @property
+    def gemini_models(self) -> List[str]:
+        return [self.GEMINI_MODEL] + [m for m in self.GEMINI_FALLBACK_MODELS if m != self.GEMINI_MODEL]
 
     @property
     def gemini_configured(self) -> bool:
