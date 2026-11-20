@@ -43,7 +43,17 @@ secret() {  # secret <name> <value>
 DB_PASSWORD="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-28)"
 secret nsin-db-password "${DB_PASSWORD}"
 secret nsin-jwt-secret "$(openssl rand -hex 32)"
-if ! gcloud secrets describe nsin-gemini-api-key >/dev/null 2>&1; then
+if [[ -n "${GEMINI_KEY_FILE:-}" ]]; then
+  # Key kept in a local file (never in the repo or the chat): create the secret, or add a new version.
+  GEMINI_KEY="$(tr -d '\r\n ' < "${GEMINI_KEY_FILE}")"
+  if gcloud secrets describe nsin-gemini-api-key >/dev/null 2>&1; then
+    printf '%s' "${GEMINI_KEY}" | gcloud secrets versions add nsin-gemini-api-key --data-file=- >/dev/null
+    echo "    nsin-gemini-api-key: new version added from GEMINI_KEY_FILE"
+  else
+    secret nsin-gemini-api-key "${GEMINI_KEY}"
+  fi
+  unset GEMINI_KEY
+elif ! gcloud secrets describe nsin-gemini-api-key >/dev/null 2>&1; then
   read -r -s -p "Paste your Gemini API key from https://aistudio.google.com/apikey and press Enter: " GEMINI_KEY
   echo
   secret nsin-gemini-api-key "${GEMINI_KEY}"
