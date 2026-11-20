@@ -30,7 +30,8 @@ steps:
       - --allow-unauthenticated
       - --add-cloudsql-instances=${_SQL_INSTANCE}
       - --min-instances=0
-      - --max-instances=10
+      # Cost guard: scale to zero when idle, at most 2 instances (the demo never needs more).
+      - --max-instances=2
       - --cpu=1
       - --memory=1Gi
       # ^@^ switches the separator to @ so CORS_ORIGINS may contain commas (gcloud topic escaping)

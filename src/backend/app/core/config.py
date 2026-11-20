@@ -74,11 +74,21 @@ class Settings:
     GEMINI_TIMEOUT_SECONDS: int = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "12"))  # per request
     # Total time Gemini may add to one triage or briefing before the rule result is returned alone.
     GEMINI_BUDGET_SECONDS: float = float(os.getenv("GEMINI_BUDGET_SECONDS", "20"))
+    # Cost guards. Output tokens include the model's thinking tokens, so leave headroom over the ~400
+    # tokens a triage answer needs. The cache reuses identical answers for an hour.
+    GEMINI_MAX_OUTPUT_TOKENS: int = int(os.getenv("GEMINI_MAX_OUTPUT_TOKENS", "2048"))
+    GEMINI_CACHE_SECONDS: int = int(os.getenv("GEMINI_CACHE_SECONDS", "3600"))
     ENABLE_GEMINI_TRIAGE: bool = _flag("ENABLE_GEMINI_TRIAGE")
     ENABLE_VECTOR_SEARCH: bool = _flag("ENABLE_VECTOR_SEARCH")
     ENABLE_LLM_BRIEFING: bool = _flag("ENABLE_LLM_BRIEFING")
 
     # Login throttling (per client IP + email)
+    # Live map. Demo mode lets staff dispatch a simulated responder so a judge can watch one move.
+    MAP_CITY: str = os.getenv("MAP_CITY", "Lucknow")
+    MAP_CENTER: List[float] = [float(v) for v in os.getenv("MAP_CENTER", "26.8560,80.9800").split(",")]
+    DEMO_MODE: bool = _flag("DEMO_MODE")
+    RESPONDER_PING_TTL_SECONDS: int = int(os.getenv("RESPONDER_PING_TTL_SECONDS", "900"))
+
     LOGIN_MAX_ATTEMPTS: int = int(os.getenv("LOGIN_MAX_ATTEMPTS", "5"))
     LOGIN_WINDOW_SECONDS: int = int(os.getenv("LOGIN_WINDOW_SECONDS", "300"))
 

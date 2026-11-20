@@ -128,6 +128,21 @@ class LocationEvent(Base):
     incident = sa_relationship("Incident", back_populates="location_events")
     user = sa_relationship("User")
 
+class ResponderTrack(Base):
+    """A responder heading to an incident. Simulated tracks (demo mode) are interpolated on read,
+    so the moving marker needs no background worker and works on any Cloud Run instance."""
+    __tablename__ = "responder_tracks"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    responder_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    incident_id = Column(Integer, ForeignKey("incidents.id"), nullable=False, index=True)
+    from_lat = Column(Float, nullable=False)
+    from_lng = Column(Float, nullable=False)
+    started_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    duration_seconds = Column(Integer, default=120, nullable=False)
+    simulated = Column(Boolean, default=False, nullable=False)
+    active = Column(Boolean, default=True, nullable=False)
+
 class ChildJourney(Base):
     __tablename__ = "child_journeys"
 

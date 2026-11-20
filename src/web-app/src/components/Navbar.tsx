@@ -108,10 +108,10 @@ export const Navbar: React.FC = () => {
               )}
 
               <Link 
-                to="/community" 
-                className={`px-3 py-1.5 rounded-lg transition ${isActive('/community') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
+                to="/map" 
+                className={`px-3 py-1.5 rounded-lg transition ${isActive('/map') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
               >
-                Community Map
+                Live Map
               </Link>
             </>
           ) : (
@@ -197,7 +197,8 @@ export const Navbar: React.FC = () => {
               {user.role === 'admin' && (
                 <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-teal-400 font-semibold">Admin Oversight</Link>
               )}
-              <Link to="/community" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Community Map & Hazards</Link>
+              <Link to="/map" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Live Map</Link>
+              <Link to="/community" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Community Insights & Hazards</Link>
               <button onClick={handleLogout} className="w-full text-left py-2 text-red-400 font-medium">Sign Out</button>
             </div>
           ) : (

@@ -15,17 +15,20 @@ graph TD
     Web["Web app<br/>React 19 + TypeScript<br/>Firebase Hosting"] -->|"HTTPS · JSON · JWT"| API
     Android["Android app<br/>Kotlin + Compose + Retrofit"] -->|"HTTPS · JSON · JWT"| API
 
-    subgraph Run["Google Cloud Run (asia-south1) · autoscaling 0 to 10"]
+    subgraph Run["Google Cloud Run (asia-south1) · autoscaling 0 to 2"]
         API["FastAPI /api/v1<br/>auth · sos · incidents · contacts · children<br/>elder-care · responders · community · ai"]
         SEC["Security<br/>JWT · role checks · login throttle<br/>validation · audit"]
         TRI["Triage workflow<br/>rules: intake → assess<br/>Gemini: structured JSON → merge (never downgrade)<br/>route: escalate / standard"]
         RET["Hybrid retriever<br/>BM25 + pgvector · RRF · filters"]
         VEC["Related-incident search"]
         BRF["Grounded briefing"]
+        AGT["NSIN Copilot agent<br/>Gemini function calling · 9 tools<br/>reads run live · writes need user Confirm"]
         ANA["Analytics SQL"]
         API --> SEC & TRI & VEC & ANA
         TRI --> RET
         API --> BRF --> RET
+        API --> AGT
+        AGT -->|"tools reuse the same endpoints,<br/>role checks and audit"| API
     end
 
     subgraph GAI["Google AI"]
@@ -34,6 +37,7 @@ graph TD
     end
     TRI --> GEM
     BRF --> GEM
+    AGT --> GEM
     RET --> EMB
     VEC --> EMB
 

@@ -1,7 +1,8 @@
 import { 
   AuthResponse, User, TrustedContact, Incident, ChildJourney, 
   ElderCheckIn, AssistanceRequest, CommunityInsights, CommunityHazard, 
-  AIAnalysisResult, SimilarIncident } from '../types';
+  AIAnalysisResult, SimilarIncident, LiveMapData, MapResponder,
+  AgentTurn, AgentReply, AgentActionResult } from '../types';
 
 /** API base URL. A hosted build (VITE_LIVE_CONFIG set) reads it at start-up from live.json, so a new tunnel needs no rebuild. */
 let API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -127,7 +128,7 @@ class ApiService {
     });
   }
 
-  async createIncident(incident: { title: string; description: string; incident_type: string; priority?: string; location_address?: string }): Promise<Incident> {
+  async createIncident(incident: { title: string; description: string; incident_type: string; priority?: string; location_address?: string; latitude?: number; longitude?: number }): Promise<Incident> {
     return this.request<Incident>('/api/v1/incidents', {
       method: 'POST',
       body: JSON.stringify(incident),
@@ -246,6 +247,44 @@ class ApiService {
     return this.request<AIAnalysisResult>('/api/v1/ai/incident-assistance', {
       method: 'POST',
       body: JSON.stringify({ raw_text, incident_type, location_address: location, incident_id }),
+    });
+  }
+
+  /** Human override of the AI priority (verified responders and admins; reason required). */
+  async overridePriority(id: number, priority: string, reason: string): Promise<Incident> {
+    return this.request<Incident>(`/api/v1/incidents/${id}/priority`, {
+      method: 'POST',
+      body: JSON.stringify({ priority, reason }),
+    });
+  }
+
+  async getLiveMap(): Promise<LiveMapData> {
+    return this.request<LiveMapData>('/api/v1/map/live');
+  }
+
+  async pingResponderLocation(latitude: number, longitude: number, accuracy?: number, incident_id?: number): Promise<void> {
+    return this.request<void>('/api/v1/map/responder-location', {
+      method: 'POST',
+      body: JSON.stringify({ latitude, longitude, accuracy, incident_id }),
+    });
+  }
+
+  async demoDispatch(incidentId: number): Promise<MapResponder> {
+    return this.request<MapResponder>(`/api/v1/map/demo/dispatch/${incidentId}`, { method: 'POST' });
+  }
+
+  // --- NSIN Copilot (Gemini agent with tool calling) ---
+  async agentChat(message: string, history: AgentTurn[], location?: { latitude: number; longitude: number }): Promise<AgentReply> {
+    return this.request<AgentReply>('/api/v1/agent/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, history: history.slice(-8), location }),
+    });
+  }
+
+  async agentConfirm(tool: string, args: Record<string, unknown>): Promise<AgentActionResult> {
+    return this.request<AgentActionResult>('/api/v1/agent/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ tool, args }),
     });
   }
 

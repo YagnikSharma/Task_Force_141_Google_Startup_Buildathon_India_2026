@@ -80,6 +80,9 @@ def test_sql_analytics_compute_exact_median_and_p90(client, resident, responder)
     PostgreSQL must return median 7, PERCENTILE_CONT(0.9) = 7 + 0.8 * (11 - 7) = 10.2, average 6.67."""
     for minutes_ago, ack_after in ((50, 2), (40, 7), (35, 11), (20, None)):
         inc = _create(client, resident, priority="P4_ADVISORY", location_address="Parity Lane")
+        # The rule floor files a hazard at P3 at least; staff lower it to P4 through the audited override.
+        assert client.post(f"{API}/incidents/{inc['id']}/priority", headers=responder,
+                           json={"priority": "P4_ADVISORY", "reason": "Advisory only, no risk on site."}).status_code == 200
         if ack_after is not None:
             client.post(f"{API}/incidents/{inc['id']}/acknowledge", headers=responder)
         _shift_times(inc["id"], minutes_ago, ack_after)

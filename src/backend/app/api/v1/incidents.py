@@ -5,13 +5,15 @@ from typing import Dict, FrozenSet, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session, selectinload
 
+from backend.app.ai.triage import more_severe, triage_orchestrator
 from backend.app.ai.vector_store import vector_store
 from backend.app.api.deps import ensure_verified_staff, get_current_user, is_staff
 from backend.app.core.audit import record_audit
 from backend.app.database.base import get_db
-from backend.app.models.entities import Incident, IncidentStatusHistory, LocationEvent, User
+from backend.app.models.entities import Incident, IncidentStatusHistory, LocationEvent, ResponderTrack, User
 from backend.app.schemas.safety_schemas import (
-    IncidentCreate, IncidentResponse, IncidentStatus, IncidentStatusHistoryItem, IncidentStatusUpdate,
+    IncidentCreate, IncidentPriorityUpdate, IncidentResponse, IncidentStatus, IncidentStatusHistoryItem,
+    IncidentStatusUpdate,
     IncidentType, SimilarIncident,
 )
 
@@ -114,9 +116,17 @@ def _apply_status(db: Session, incident: Incident, new_status: str, user: User, 
     incident.updated_at = now
     if new_status in CLOSED_STATUSES:
         incident.resolved_at = now
+        db.query(ResponderTrack).filter(ResponderTrack.incident_id == incident.id, ResponderTrack.active.is_(True))             .update({ResponderTrack.active: False}, synchronize_session=False)
     db.add(IncidentStatusHistory(incident_id=incident.id, status=new_status, notes=notes, updated_by_id=user.id, created_at=now))
     record_audit(db, "incident_status_changed", "incident", incident.id, user_id=user.id, request=request,
                  details={"from": previous, "to": new_status})
+
+
+def rule_priority(title: str, description: str, incident_type: str) -> str:
+    """Offline keyword triage (no network, microseconds). Used as a floor on the reported priority."""
+    text = f"{title}. {description}"
+    intake = triage_orchestrator.intake_agent.execute(text, incident_type)
+    return triage_orchestrator.triage_agent.execute(intake, text)["suggested_priority"]
 
 
 @router.post("", response_model=IncidentResponse, status_code=status.HTTP_201_CREATED)
@@ -127,12 +137,16 @@ def create_incident(
     db: Session = Depends(get_db),
 ):
     now = datetime.datetime.utcnow()
+    # The client sends the Gemini triage suggestion. The safety rules set a floor, so a report can be
+    # raised above what the rules say but never filed below it; only staff can lower it afterwards.
+    floor = rule_priority(req.title, req.description, req.incident_type)
+    priority = more_severe(req.priority or floor, floor)
     incident = Incident(
         reporter_id=current_user.id,
         title=req.title.strip(),
         description=req.description.strip(),
         incident_type=req.incident_type,
-        priority=req.priority or "P2_HIGH",
+        priority=priority,
         status="reported",
         location_address=req.location_address,
         latitude=req.latitude,
@@ -260,5 +274,37 @@ def update_incident_status(
     _apply_status(db, incident, req.status, current_user, notes, request)
     if is_staff(current_user) and incident.assigned_responder_id is None:
         incident.assigned_responder_id = current_user.id
+    db.commit()
+    return _format_incident_response(_get_visible_incident(db, incident_id, current_user), current_user)
+
+
+@router.post("/{incident_id}/priority", response_model=IncidentResponse)
+def override_priority(
+    incident_id: int,
+    req: IncidentPriorityUpdate,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Human-in-the-loop: a verified responder or admin may change the AI/rule priority, with a reason.
+    The change is written to the incident timeline and the audit trail."""
+    ensure_verified_staff(current_user)
+    incident = _get_visible_incident(db, incident_id, current_user)
+    if incident.status in CLOSED_STATUSES:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Closed incidents cannot be re-prioritised.")
+    if req.priority == incident.priority:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"Incident is already {req.priority}.")
+
+    now = datetime.datetime.utcnow()
+    previous = incident.priority
+    incident.priority = req.priority
+    incident.updated_at = now
+    reason = req.reason.strip()
+    db.add(IncidentStatusHistory(
+        incident_id=incident.id, status=incident.status, updated_by_id=current_user.id, created_at=now,
+        notes=f"Priority changed {previous} → {req.priority} by {current_user.full_name}. Reason: {reason}",
+    ))
+    record_audit(db, "incident_priority_overridden", "incident", incident.id, user_id=current_user.id,
+                 request=request, details={"from": previous, "to": req.priority, "reason": reason})
     db.commit()
     return _format_incident_response(_get_visible_incident(db, incident_id, current_user), current_user)

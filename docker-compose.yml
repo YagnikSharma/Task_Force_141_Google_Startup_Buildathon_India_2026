@@ -34,7 +34,7 @@ services:
       APP_ENV: development
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: nsin
+      DB_NAME: ${APP_DB_NAME:-nsin}  # local override, e.g. APP_DB_NAME=nsin_lucknow for a fresh seed
       DB_USER: nsin
       DB_PASSWORD: ${DB_PASSWORD:-nsin-local-dev}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
@@ -55,6 +55,9 @@ services:
       context: ./src/web-app
       args:
         VITE_API_BASE_URL: http://localhost:8000
+        # Optional. Without a key the map uses the free MapLibre engine.
+        VITE_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+        VITE_GOOGLE_MAPS_MAP_ID: ${GOOGLE_MAPS_MAP_ID:-}
     container_name: nsin_webapp
     ports:
       - "3000:80"
@@ -63,3 +66,5 @@ services:
 
 volumes:
   pg-data:
+    # Fixed name, independent of the folder name. Changing it starts a fresh, freshly seeded database.
+    name: nsin_google_pgdata

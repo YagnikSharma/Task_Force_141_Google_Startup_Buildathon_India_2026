@@ -7,9 +7,10 @@ from backend.app.core.config import settings
 from backend.app.database.base import init_db, get_db_status
 from backend.app.ai.retrieval import protocol_retriever
 from backend.app.ai.vector_store import vector_store
+from backend.app.ai.agent import TOOLS as AGENT_TOOLS
 from backend.app.api.v1 import (
     auth, profiles, trusted_contacts, incidents, sos,
-    children, elder_care, responders, community, ai
+    children, elder_care, responders, community, ai, live_map, agent
 )
 
 logging.basicConfig(
@@ -88,7 +89,9 @@ def health_check():
             },
             "protocol_retrieval": "hybrid (BM25 + Gemini embeddings in pgvector)" if protocol_retriever.hybrid else "BM25",
             "incident_vector_search": "active" if vector_store.enabled else "inactive",
-            "rule_triage": "active"
+            "rule_triage": "active",
+            "copilot_agent": {"function_calling": settings.gemini_configured, "tools": len(AGENT_TOOLS),
+                              "write_actions_need_user_confirmation": True},
         }
     }
 
@@ -114,6 +117,8 @@ app.include_router(elder_care.router, prefix=prefix)
 app.include_router(responders.router, prefix=prefix)
 app.include_router(community.router, prefix=prefix)
 app.include_router(ai.router, prefix=prefix)
+app.include_router(live_map.router, prefix=prefix)
+app.include_router(agent.router, prefix=prefix)
 
 if __name__ == "__main__":
     import uvicorn

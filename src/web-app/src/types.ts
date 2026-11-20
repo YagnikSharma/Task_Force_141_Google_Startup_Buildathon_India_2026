@@ -199,3 +199,90 @@ export interface AIAnalysisResult {
   } | null;
   gemini_error?: string | null;
 }
+
+// --- Live community map -------------------------------------------------------------------------
+export interface MapIncident {
+  id: number;
+  reference_code: string;
+  title: string;
+  incident_type: string;
+  priority: string;
+  status: string;
+  latitude: number;
+  longitude: number;
+  approximate: boolean;
+  location_address?: string | null;
+  assigned_responder_id?: number | null;
+  mine: boolean;
+  created_at: string;
+}
+
+export interface MapResponder {
+  user_id: number;
+  label: string;
+  service_type: string;
+  latitude: number;
+  longitude: number;
+  source: 'gps' | 'simulated' | 'base';
+  is_available: boolean;
+  heading_to_incident_id?: number | null;
+  progress?: number | null;
+  eta_seconds?: number | null;
+  route: [number, number][];
+  updated_at?: string | null;
+}
+
+export interface MapHazard {
+  id: number;
+  title: string;
+  hazard_type: string;
+  severity: string;
+  latitude: number;
+  longitude: number;
+  address?: string | null;
+  status: string;
+}
+
+export interface LiveMapData {
+  city: string;
+  center: [number, number];
+  incidents: MapIncident[];
+  responders: MapResponder[];
+  hazards: MapHazard[];
+  server_time: string;
+  demo_mode: boolean;
+}
+
+// --- NSIN Copilot (Gemini agent) ---
+export interface AgentTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AgentStep {
+  tool: string;
+  args: Record<string, unknown>;
+  ok: boolean;
+  write?: boolean;
+}
+
+export interface AgentPendingAction {
+  tool: string;
+  args: Record<string, unknown>;
+  summary: string;
+}
+
+export interface AgentReply {
+  reply: string;
+  steps: AgentStep[];
+  pending_actions: AgentPendingAction[];
+  model: string | null;
+  engine: 'gemini' | 'rules-fallback';
+  gemini_error?: string;
+}
+
+export interface AgentActionResult {
+  done: boolean;
+  message: string;
+  link?: string;
+}

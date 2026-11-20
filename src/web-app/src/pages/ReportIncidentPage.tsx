@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Sparkles, CheckCircle2, ArrowRight, Loader2, BookOpen, AlertCircle } from 'lucide-react';
+import { MapPin, Sparkles, CheckCircle2, ArrowRight, Loader2, BookOpen, AlertCircle, LocateFixed } from 'lucide-react';
+import { LiveMap } from '../components/map/LiveMap';
 import { api } from '../services/api';
 import { AIAnalysisResult } from '../types';
 
@@ -10,7 +11,21 @@ export const ReportIncidentPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [incidentType, setIncidentType] = useState('hazard');
-  const [priority, setPriority] = useState('P2_HIGH');
+  const [priority, setPriority] = useState<string | null>(null);
+  // GPS first: the phone's location is taken automatically; a landmark is only required without it.
+  const [gps, setGps] = useState<{ lat: number; lng: number; accuracy?: number } | null>(null);
+  const [gpsState, setGpsState] = useState<'locating' | 'ok' | 'denied' | 'unsupported'>('locating');
+
+  const locate = () => {
+    if (!('geolocation' in navigator)) { setGpsState('unsupported'); return; }
+    setGpsState('locating');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setGps({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }); setGpsState('ok'); },
+      () => setGpsState('denied'),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  };
+  useEffect(locate, []);
   const [locationAddress, setLocationAddress] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,10 +34,10 @@ export const ReportIncidentPage: React.FC = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [aiResult, setAiResult] = useState<AIAnalysisResult | null>(null);
 
-  const handleRunAiTriage = async () => {
+  const handleRunAiTriage = async (): Promise<AIAnalysisResult | null> => {
     if (!description || description.length < 5) {
-      alert("Please enter a short description first so the AI can analyze the incident.");
-      return;
+      setError("Please enter a short description first so the AI can analyze the incident.");
+      return null;
     }
     setAnalyzing(true);
     try {
@@ -37,8 +52,10 @@ export const ReportIncidentPage: React.FC = () => {
       if (res.extracted_location && !locationAddress) {
         setLocationAddress(res.extracted_location);
       }
+      return res;
     } catch (err: any) {
       console.error("AI assistance failed:", err);
+      return null;
     } finally {
       setAnalyzing(false);
     }
@@ -50,14 +67,18 @@ export const ReportIncidentPage: React.FC = () => {
     setError(null);
 
     try {
+      // No triage yet? Run it now, so the priority always comes from Gemini (or the safety rules).
+      const triage = aiResult ?? (await handleRunAiTriage());
       const incident = await api.createIncident({
         title,
         description,
-        incident_type: incidentType,
-        priority,
+        incident_type: triage?.parsed_category || incidentType,
+        priority: triage?.suggested_priority || priority || undefined,
         location_address: locationAddress || undefined,
+        latitude: gps?.lat,
+        longitude: gps?.lng,
       });
-      if (aiResult) {
+      if (triage) {
         // Persist the triage analysis against the new incident (stored in ai_analysis_records).
         try {
           await api.getIncidentAIAssistance(description, incidentType, locationAddress, incident.id);
@@ -144,13 +165,25 @@ export const ReportIncidentPage: React.FC = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Specific Location / Landmark</label>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-700">Location</label>
+              <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${gpsState === 'ok' ? 'text-emerald-700' : gpsState === 'locating' ? 'text-slate-500' : 'text-amber-700'}`}>
+                {gpsState === 'locating' && <><Loader2 className="w-3 h-3 animate-spin" /> Getting your GPS…</>}
+                {gpsState === 'ok' && <><LocateFixed className="w-3 h-3" /> GPS captured{gps?.accuracy ? ` (±${Math.round(gps.accuracy)} m)` : ''}. Drag the pin if needed.</>}
+                {(gpsState === 'denied' || gpsState === 'unsupported') && (
+                  <button type="button" onClick={locate} className="underline">GPS unavailable. Try again, or tap the map</button>
+                )}
+              </span>
+            </div>
+            <LiveMap data={null} pick={gps} onPick={(lat, lng) => { setGps({ lat, lng }); setGpsState('ok'); }}
+              interactive3d={false} className="h-48 w-full overflow-hidden rounded-xl border border-slate-200" />
             <div className="relative">
               <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
                 type="text"
-                placeholder="e.g. Opposite Sector 4 Community Park Gate 2"
+                required={!gps}
+                placeholder={gps ? 'Landmark (optional), e.g. near Gate 2, opposite the chemist' : 'Landmark (required without GPS), e.g. Opposite Gate 2'}
                 value={locationAddress}
                 onChange={(e) => setLocationAddress(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
@@ -158,24 +191,12 @@ export const ReportIncidentPage: React.FC = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Preliminary Priority</label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              {['P1_CRITICAL', 'P2_HIGH', 'P3_MODERATE', 'P4_ADVISORY'].map((lvl) => (
-                <button
-                  key={lvl}
-                  type="button"
-                  onClick={() => setPriority(lvl)}
-                  className={`py-2 px-3 rounded-xl font-bold border transition ${
-                    priority === lvl 
-                      ? 'bg-slate-900 text-white border-slate-900' 
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  {lvl.replace('_', ' ')}
-                </button>
-              ))}
-            </div>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#1a73e8] shrink-0" />
+            <span>
+              <strong className="text-slate-800">Priority: {priority ? priority.replace('_', ' ') : 'set automatically'}</strong>
+              {' '}by Gemini triage and the safety rules when you submit. A verified responder can change it later, with a logged reason.
+            </span>
           </div>
 
           <button

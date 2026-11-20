@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import Mark from './Mark';
 import React from 'react';
 import { Shield, PhoneCall, Lock, Heart, Database, Code2 } from 'lucide-react';
@@ -48,11 +49,15 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="font-semibold text-white text-xs uppercase tracking-wider mb-3">Core Modules</h4>
             <ul className="space-y-2 text-xs">
-              <li><a href="#safety-pillars" className="hover:text-teal-400 transition">Emergency SOS Protocol</a></li>
-              <li><a href="#safety-pillars" className="hover:text-teal-400 transition">Safe Transit for Women</a></li>
-              <li><a href="#safety-pillars" className="hover:text-teal-400 transition">Child Journey Tracking</a></li>
-              <li><a href="#safety-pillars" className="hover:text-teal-400 transition">Senior Citizen Care</a></li>
-              <li><a href="#safety-pillars" className="hover:text-teal-400 transition">Civic Hazard Registry</a></li>
+              {[
+                ['/sos', 'Emergency SOS'],
+                ['/map', 'Live Safety Map'],
+                ['/child-safety', 'Child Journey Tracking'],
+                ['/elder-care', 'Senior Citizen Care'],
+                ['/community', 'Civic Hazard Registry'],
+              ].map(([to, label]) => (
+                <li key={to}><Link to={to} className="hover:text-teal-400 transition">{label}</Link></li>
+              ))}
             </ul>
           </div>
 
@@ -62,6 +67,7 @@ export const Footer: React.FC = () => {
               <li className="flex items-center gap-1.5"><Code2 className="w-3.5 h-3.5 text-teal-400" /> Python FastAPI Shared Core</li>
               <li className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5 text-teal-400" /> Cloud SQL PostgreSQL + pgvector</li>
               <li className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-teal-400" /> Gemini Triage + Rule Safety Net</li>
+              <li className="flex items-center gap-1.5"><Code2 className="w-3.5 h-3.5 text-teal-400" /> Gemini Copilot Agent (function calling)</li>
               <li className="flex items-center gap-1.5"><Heart className="w-3.5 h-3.5 text-teal-400" /> Jetpack Compose Native App</li>
             </ul>
             <div className="mt-4 pt-4 border-t border-slate-800 text-[11px] text-slate-500">

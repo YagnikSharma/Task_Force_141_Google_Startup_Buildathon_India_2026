@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Clock, ArrowLeft, RefreshCw, CheckCircle2, AlertCircle, Send } from 'lucide-react';
+import { MapPin, Clock, ArrowLeft, RefreshCw, CheckCircle2, AlertCircle, Send, Navigation, Radio, Scale } from 'lucide-react';
+import { LiveMap, useLiveMap } from '../components/map/LiveMap';
+import { etaText } from '../components/map/markers';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import { Incident, IncidentStatus, SimilarIncident } from '../types';
+import { Incident, IncidentStatus, LiveMapData, SimilarIncident } from '../types';
 
 export const IncidentDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -58,6 +60,64 @@ export const IncidentDetailPage: React.FC = () => {
     } finally {
       setUpdating(false);
     }
+  };
+
+  // Human override of the AI priority (staff only, reason required, logged on the timeline).
+  const [overridePriority, setOverridePriority] = useState('P1_CRITICAL');
+  const [overrideReason, setOverrideReason] = useState('');
+  const handleOverride = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!incident) return;
+    setUpdating(true);
+    try {
+      await api.overridePriority(incident.id, overridePriority, overrideReason.trim());
+      setOverrideReason('');
+      await fetchIncident();
+    } catch (err: any) {
+      alert('Could not change priority: ' + err.message);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Live map: poll while the incident is open.
+  const open = !!incident && !['resolved', 'false_alarm'].includes(incident.status);
+  const { data: live } = useLiveMap(4000, open && incident?.latitude != null);
+  const mapData: LiveMapData | null = useMemo(() => {
+    if (!incident || incident.latitude == null || incident.longitude == null) return null;
+    if (live && live.incidents.some((i) => i.id === incident.id)) return live;
+    return {
+      city: 'Lucknow', center: [incident.latitude, incident.longitude], hazards: [],
+      responders: live?.responders.filter((r) => r.heading_to_incident_id === incident.id) || [],
+      server_time: new Date().toISOString(), demo_mode: false,
+      incidents: [{ id: incident.id, reference_code: incident.reference_code, title: incident.title, incident_type: incident.incident_type,
+        priority: incident.priority, status: incident.status, latitude: incident.latitude, longitude: incident.longitude,
+        approximate: false, location_address: incident.location_address, mine: true, created_at: incident.created_at }],
+    };
+  }, [incident, live]);
+  const myUnit = live?.responders.find((r) => r.heading_to_incident_id === incident?.id);
+
+  // Responder shares live GPS while handling this incident.
+  const [sharing, setSharing] = useState(false);
+  const watchId = useRef<number | null>(null);
+  const lastPing = useRef(0);
+  useEffect(() => {
+    if (!sharing || !incident) return;
+    if (!('geolocation' in navigator)) { setSharing(false); return; }
+    watchId.current = navigator.geolocation.watchPosition((pos) => {
+      if (Date.now() - lastPing.current < 8000) return;  // at most one ping every 8 s
+      lastPing.current = Date.now();
+      api.pingResponderLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy, incident.id).catch(() => {});
+    }, () => setSharing(false), { enableHighAccuracy: true, maximumAge: 5000 });
+    return () => { if (watchId.current != null) navigator.geolocation.clearWatch(watchId.current); };
+  }, [sharing, incident?.id]);
+
+  const handleDemoDispatch = async () => {
+    if (!incident) return;
+    setUpdating(true);
+    try { await api.demoDispatch(incident.id); await fetchIncident(); }
+    catch (err: any) { alert(err.message); }
+    finally { setUpdating(false); }
   };
 
   const handleAcknowledge = async () => {
@@ -171,6 +231,63 @@ export const IncidentDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Live location map */}
+      {mapData && (
+        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-slate-100">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2"><MapPin className="w-4 h-4 text-[#ea4335]" /> Live location</h3>
+            {myUnit ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1a73e8] px-3 py-1 text-xs font-semibold text-white">
+                <Navigation className="w-3.5 h-3.5" /> {myUnit.label} · {etaText(myUnit.eta_seconds)}
+              </span>
+            ) : incident.status === 'reported' ? (
+              <span className="text-xs text-slate-500">Waiting for a responder to accept…</span>
+            ) : null}
+          </div>
+          <LiveMap data={mapData} focusIncidentId={incident.id} className="h-72 sm:h-96 w-full" />
+          {isResponderOrAdmin && open && (
+            <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-t border-slate-100 text-xs">
+              <button onClick={() => setSharing((v) => !v)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-semibold ${sharing ? 'bg-emerald-600 text-white' : 'border border-slate-300 text-slate-700'}`}>
+                <Radio className="w-3.5 h-3.5" /> {sharing ? 'Sharing my live GPS' : 'Share my live GPS'}
+              </button>
+              {live?.demo_mode && !myUnit && (
+                <button onClick={handleDemoDispatch} disabled={updating}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 font-semibold text-white disabled:opacity-50">
+                  <Send className="w-3.5 h-3.5" /> Dispatch nearest unit (demo drive)
+                </button>
+              )}
+              <Link to="/map" className="ml-auto font-semibold text-[#1a73e8]">Open full live map →</Link>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Human-in-the-loop priority override */}
+      {isResponderOrAdmin && open && (
+        <form onSubmit={handleOverride} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2"><Scale className="w-4 h-4 text-[#1a73e8]" /> Change priority</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              The AI and safety rules set {incident.priority.replace('_', ' ')}. You have the final say; your reason is recorded on the timeline and in the audit log.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr_auto] gap-2">
+            <select value={overridePriority} onChange={(e) => setOverridePriority(e.target.value)}
+              className="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white">
+              {['P1_CRITICAL', 'P2_HIGH', 'P3_MODERATE', 'P4_ADVISORY'].filter((p) => p !== incident.priority).map((p) => (
+                <option key={p} value={p}>{p.replace('_', ' ')}</option>
+              ))}
+            </select>
+            <input required minLength={10} maxLength={500} value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)}
+              placeholder="Reason (min 10 characters), e.g. On site: no injuries, area secured"
+              className="px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+            <button type="submit" disabled={updating || overrideReason.trim().length < 10}
+              className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">Apply</button>
+          </div>
+        </form>
+      )}
 
       {/* Responder / Citizen Action Bar */}
       {incident.status !== 'resolved' && (

@@ -34,6 +34,8 @@ Built by **Team Task Force 141** for **Startup Buildathon India 2026** (Google D
 6. **Related reports.** Gemini embeddings find duplicate reports of the same event (for example five residents reporting one broken streetlight).
 7. **Child commute and elder check-ins.** Expected-arrival windows and missed check-ins raise alerts.
 8. **Community intelligence.** Median and p90 response times, SLA breaches, hotspot ranking and incidents by hour, all computed in SQL.
+9. **NSIN Copilot (Gemini agent).** Ask in English, Hindi or Hinglish. Gemini calls real app tools (live incidents, hazards, nearest responders, safety protocols) and prepares actions (file a report, change a status, dispatch a responder) that run only after you press **Confirm**.
+10. **Live community map.** Open alerts, hazards and responders in Lucknow, with privacy masking for other residents' alerts and a demo dispatch that drives a responder to the incident with an ETA.
 
 ## Screenshots
 Captured from the running app (PostgreSQL + pgvector, real Gemini API).

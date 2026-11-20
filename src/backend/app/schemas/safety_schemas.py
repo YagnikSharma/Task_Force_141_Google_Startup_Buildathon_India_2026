@@ -103,7 +103,8 @@ class IncidentCreate(BaseModel):
     title: str = Field(min_length=3, max_length=200)
     description: str = Field(min_length=5, max_length=4000)
     incident_type: IncidentType = "hazard"
-    priority: Optional[Priority] = "P2_HIGH"
+    # The Gemini triage suggestion. Omitted: the offline safety rules decide. Either way the rules are a floor.
+    priority: Optional[Priority] = None
     location_address: Optional[str] = Field(default=None, max_length=255)
     latitude: Optional[float] = Latitude()
     longitude: Optional[float] = Longitude()
@@ -111,6 +112,65 @@ class IncidentCreate(BaseModel):
 class IncidentStatusUpdate(BaseModel):
     status: IncidentStatus
     notes: Optional[str] = Field(default=None, max_length=2000)
+
+class IncidentPriorityUpdate(BaseModel):
+    """Human override of the AI/rule priority. The reason is mandatory and lands in the audit trail."""
+    priority: Priority
+    reason: str = Field(min_length=10, max_length=500)
+
+class ResponderLocationPing(BaseModel):
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    accuracy: Optional[float] = Field(default=None, ge=0, le=10000)
+    incident_id: Optional[int] = None
+
+class MapIncident(BaseModel):
+    id: int
+    reference_code: str
+    title: str
+    incident_type: str
+    priority: str
+    status: str
+    latitude: float
+    longitude: float
+    approximate: bool = False
+    location_address: Optional[str] = None
+    assigned_responder_id: Optional[int] = None
+    mine: bool = False
+    created_at: datetime.datetime
+
+class MapResponder(BaseModel):
+    user_id: int
+    label: str
+    service_type: str
+    latitude: float
+    longitude: float
+    source: Literal["gps", "simulated", "base"]
+    is_available: bool
+    heading_to_incident_id: Optional[int] = None
+    progress: Optional[float] = None
+    eta_seconds: Optional[int] = None
+    route: List[List[float]] = []
+    updated_at: Optional[datetime.datetime] = None
+
+class MapHazard(BaseModel):
+    id: int
+    title: str
+    hazard_type: str
+    severity: str
+    latitude: float
+    longitude: float
+    address: Optional[str] = None
+    status: str
+
+class LiveMapResponse(BaseModel):
+    city: str
+    center: List[float]
+    incidents: List[MapIncident]
+    responders: List[MapResponder]
+    hazards: List[MapHazard]
+    server_time: datetime.datetime
+    demo_mode: bool
 
 class IncidentStatusHistoryItem(BaseModel):
     id: int

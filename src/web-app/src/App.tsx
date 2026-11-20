@@ -16,6 +16,8 @@ import { ElderCarePage } from './pages/ElderCarePage';
 import { ResponderDashboard } from './pages/ResponderDashboard';
 import { CommunitySafetyDashboard } from './pages/CommunitySafetyDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { LiveMapPage } from './pages/LiveMapPage';
+import { CopilotPanel } from './components/CopilotPanel';
 
 // Route Guard
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({ children, allowedRoles }) => {
@@ -63,6 +65,7 @@ export const AppContent: React.FC = () => {
 
           {/* Community Hazards & Map */}
           <Route path="/community" element={<CommunitySafetyDashboard />} />
+          <Route path="/map" element={<LiveMapPage />} />
 
           {/* Admin Route */}
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
@@ -72,6 +75,7 @@ export const AppContent: React.FC = () => {
         </Routes>
       </main>
       <Footer />
+      <CopilotPanel />
     </div>
   );
 };
