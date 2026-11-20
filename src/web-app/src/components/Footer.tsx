@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
               <li className="flex items-center gap-1.5"><Code2 className="w-3.5 h-3.5 text-teal-400" /> Python FastAPI Shared Core</li>
               <li className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5 text-teal-400" /> Cloud SQL PostgreSQL + pgvector</li>
               <li className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-teal-400" /> Gemini Triage + Rule Safety Net</li>
-              <li className="flex items-center gap-1.5"><Code2 className="w-3.5 h-3.5 text-teal-400" /> Gemini Copilot Agent (function calling)</li>
+              <li className="flex items-center gap-1.5"><Code2 className="w-3.5 h-3.5 text-teal-400" /> Jugnu: Gemini agent (function calling)</li>
               <li className="flex items-center gap-1.5"><Heart className="w-3.5 h-3.5 text-teal-400" /> Jetpack Compose Native App</li>
             </ul>
             <div className="mt-4 pt-4 border-t border-slate-800 text-[11px] text-slate-500">

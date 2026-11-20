@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { AgentPendingAction, AgentStep, AgentTurn } from '../types';
+import { Mascot, MascotMood, MASCOT_NAME, MASCOT_TAGLINE } from './Mascot';
 
-/** NSIN Copilot: a Gemini agent that calls real app tools. Write actions need the user's Confirm. */
+/** Jugnu, the NSIN assistant: a Gemini agent that calls real app tools. Write actions need the user's Confirm. */
 
 interface Msg extends AgentTurn {
   steps?: AgentStep[];
@@ -55,6 +56,12 @@ function RichText({ text }: { text: string }) {
   );
 }
 
+const OPEN_EVENT = 'nsin:open-mascot';
+/** Open the assistant from anywhere, optionally asking a question straight away. */
+export function openMascot(question?: string) {
+  window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: question }));
+}
+
 export const CopilotPanel: React.FC = () => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -66,6 +73,14 @@ export const CopilotPanel: React.FC = () => {
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  const [cheer, setCheer] = useState(false);
+  const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
+  // Any page can open the assistant (optionally with a question) through openMascot(): the platform-guide use.
+  useEffect(() => {
+    const onOpen = (e: Event) => { setOpen(true); const q = (e as CustomEvent<string | undefined>).detail; if (q) setPendingPrompt(q); };
+    window.addEventListener(OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_EVENT, onOpen);
+  }, []);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs, busy]);
   useEffect(() => { if (open) inputRef.current?.focus(); }, [open]);
   useEffect(() => {
@@ -81,6 +96,11 @@ export const CopilotPanel: React.FC = () => {
       { enableHighAccuracy: true, timeout: 8000 },
     );
   }, [shareLocation]);
+
+  useEffect(() => {
+    if (pendingPrompt && open && !busy) { const q = pendingPrompt; setPendingPrompt(null); send(q); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPrompt, open]);
 
   if (!user) return null;
   const staff = user.role === 'responder' || user.role === 'admin';
@@ -100,7 +120,7 @@ export const CopilotPanel: React.FC = () => {
         pending: r.pending_actions.map((a) => ({ ...a, state: 'waiting' as const })),
       }]);
     } catch (e: any) {
-      setMsgs((m) => [...m, { role: 'assistant', content: e?.message || 'Copilot is unavailable. In an emergency call 112.', error: true }]);
+      setMsgs((m) => [...m, { role: 'assistant', content: e?.message || `${MASCOT_NAME} is unavailable. In an emergency call 112.`, error: true }]);
     } finally {
       setBusy(false);
     }
@@ -114,46 +134,62 @@ export const CopilotPanel: React.FC = () => {
     try {
       const r = await api.agentConfirm(a.tool, a.args);
       setAction(mi, ai, { state: 'done', result: r.message, link: r.link });
+      setCheer(true); setTimeout(() => setCheer(false), 3500);
     } catch (e: any) {
       setAction(mi, ai, { state: 'error', result: e?.message || 'The action failed.' });
     }
   };
+
+  const last = msgs[msgs.length - 1];
+  const mood: MascotMood = busy ? 'thinking' : last?.error ? 'alert' : cheer ? 'happy' : 'idle';
 
   return (
     <>
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-[1000] flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-500 px-5 py-3 text-sm font-semibold text-white shadow-xl hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 transition"
-          aria-label="Open NSIN Copilot, the Gemini safety assistant"
+          className="fixed bottom-5 right-5 z-[1000] flex items-center gap-1 rounded-full border border-blue-100 bg-white py-1 pl-1 pr-4 text-sm font-semibold text-slate-800 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 transition"
+          aria-label={`Open ${MASCOT_NAME}, the NSIN safety assistant (Gemini)`}
         >
-          <span aria-hidden>✦</span> Ask Copilot
+          <Mascot className="h-12 w-12" />
+          <span className="flex flex-col items-start leading-tight">
+            <span>Ask {MASCOT_NAME}</span>
+            <span className="text-[10px] font-medium text-slate-500">Safety help · Gemini</span>
+          </span>
         </button>
       )}
       {open && (
         <section
           role="dialog"
-          aria-label="NSIN Copilot"
+          aria-label={`${MASCOT_NAME}, NSIN safety assistant`}
           className="fixed bottom-0 right-0 z-[1000] flex h-[100dvh] w-full flex-col bg-white shadow-2xl sm:bottom-5 sm:right-5 sm:h-[620px] sm:max-h-[85vh] sm:w-[400px] sm:rounded-2xl border border-slate-200"
         >
-          <header className="flex items-center justify-between rounded-t-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-500 px-4 py-3 text-white">
-            <div>
-              <h2 className="text-base font-bold leading-tight">NSIN Copilot</h2>
-              <p className="text-xs opacity-90">Gemini agent · uses live app data · you confirm every action</p>
+          <header className="flex items-center justify-between sm:rounded-t-2xl bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 px-4 py-3 text-white">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-white/95 p-0.5 shadow"><Mascot mood={mood} className="h-11 w-11" /></span>
+              <div>
+                <h2 className="text-base font-bold leading-tight">{MASCOT_NAME} <span className="font-normal opacity-80">· NSIN assistant</span></h2>
+                <p className="text-xs opacity-90">{busy ? 'Checking live data…' : 'Gemini agent · live app data · you confirm every action'}</p>
+              </div>
             </div>
-            <button onClick={() => setOpen(false)} aria-label="Close Copilot"
+            <button onClick={() => setOpen(false)} aria-label={`Close ${MASCOT_NAME}`}
               className="rounded-full p-2 hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white">✕</button>
           </header>
 
           <div className="bg-red-50 px-4 py-1.5 text-[11px] text-red-700 border-b border-red-100">
-            In immediate danger? Call <a href="tel:112" className="font-bold underline">112</a> or use the SOS button. Copilot is advisory.
+            In immediate danger? Call <a href="tel:112" className="font-bold underline">112</a> or use the SOS button. {MASCOT_NAME} gives advice only.
           </div>
 
           <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3" aria-live="polite">
             {msgs.length === 0 && (
               <div className="space-y-3">
+                <div className="flex flex-col items-center pt-2 text-center">
+                  <Mascot mood="happy" className="h-24 w-24" />
+                  <p className="mt-1 text-sm font-bold text-slate-800">Namaste {user.full_name.split(' ')[0]}, I'm {MASCOT_NAME}!</p>
+                  <p className="text-xs text-slate-500">{MASCOT_TAGLINE}</p>
+                </div>
                 <p className="text-sm text-slate-600">
-                  Hi {user.full_name.split(' ')[0]}. I can look up live incidents and hazards, find approved safety
+                  I can look up live incidents and hazards, find approved safety
                   protocols, and prepare reports{staff ? ', status changes and dispatches' : ''} for you to confirm.
                   English, Hindi or Hinglish.
                 </p>
@@ -220,7 +256,7 @@ export const CopilotPanel: React.FC = () => {
                 <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-red-500 [animation-delay:120ms]" />
                 <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-yellow-500 [animation-delay:240ms]" />
                 <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-green-500 [animation-delay:360ms]" />
-                Gemini is thinking and checking live data…
+                {MASCOT_NAME} is checking live data with Gemini…
               </div>
             )}
             <div ref={endRef} />
@@ -229,10 +265,10 @@ export const CopilotPanel: React.FC = () => {
           <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="border-t border-slate-200 p-3">
             <label className="mb-2 flex items-center gap-2 text-[11px] text-slate-500">
               <input type="checkbox" checked={shareLocation} onChange={(e) => setShareLocation(e.target.checked)} />
-              Share my location with Copilot for this chat {coords ? '(on)' : ''}
+              Share my location with {MASCOT_NAME} for this chat {coords ? '(on)' : ''}
             </label>
             <div className="flex gap-2">
-              <label htmlFor="copilot-input" className="sr-only">Message Copilot</label>
+              <label htmlFor="copilot-input" className="sr-only">Message {MASCOT_NAME}</label>
               <textarea id="copilot-input" ref={inputRef} rows={1} value={input} maxLength={2000}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}

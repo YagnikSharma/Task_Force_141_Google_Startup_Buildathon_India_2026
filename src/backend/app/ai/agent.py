@@ -1,4 +1,4 @@
-"""NSIN Copilot: a Gemini agent that runs real app workflows through function calling.
+"""Jugnu (NSIN assistant): a Gemini agent that runs real app workflows through function calling.
 
 How one turn works
   1. The user's message (plus a short history) goes to Gemini with the tools this user may use.
@@ -40,7 +40,7 @@ INCIDENT_TYPES = ["sos", "hazard", "medical", "child_alert", "elder_welfare", "s
 STATUSES = ["reported", "acknowledged", "responder_en_route", "on_scene", "resolving", "resolved", "false_alarm"]
 HAZARD_TYPES = ["dark_street", "road_block", "aggressive_animals", "electrical", "flooding"]
 
-SYSTEM_PROMPT = """You are NSIN Copilot, the assistant inside the Neighbourhood Safety Intelligence Network,
+SYSTEM_PROMPT = """You are Jugnu (Hindi for "firefly"), the friendly assistant inside the Neighbourhood Safety Intelligence Network,
 a community-safety app used in Lucknow, India. You help residents, verified volunteer responders and
 RWA admins.
 

@@ -1,4 +1,4 @@
-"""NSIN Copilot API: chat with the Gemini agent, then confirm the actions it proposes."""
+"""Jugnu assistant API: chat with the Gemini agent, then confirm the actions it proposes."""
 from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -12,7 +12,7 @@ from backend.app.core.rate_limit import LoginThrottle
 from backend.app.database.base import get_db
 from backend.app.models.entities import User
 
-router = APIRouter(prefix="/agent", tags=["NSIN Copilot (Gemini agent)"])
+router = APIRouter(prefix="/agent", tags=["Jugnu assistant (Gemini agent)"])
 
 # Cost guard: each user may send at most 30 agent messages per 10 minutes.
 _agent_limit = LoginThrottle(max_attempts=30, window_seconds=600)
@@ -52,7 +52,7 @@ def chat(req: ChatRequest, request: Request, current_user: User = Depends(get_cu
     key = f"agent:{current_user.id}"
     wait = _agent_limit.retry_after(key)
     if wait:
-        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, f"Too many Copilot messages. Try again in {wait} s.")
+        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, f"Too many assistant messages. Try again in {wait} s.")
     _agent_limit.record_failure(key)  # counts every message, not just failures
     result = run_agent(db, current_user, request, req.message,
                        [t.model_dump() for t in req.history],
