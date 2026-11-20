@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Incident, TrustedContact, CommunityInsights } from '../types';
 import { getDeviceLocation } from '../components/map/MapControls';
-import { LUCKNOW } from '../components/map/types';
+// Demo region is Delhi NCR: if GPS is denied, fall back to Connaught Place, New Delhi.
+const DEFAULT_CITY: [number, number] = [28.6315, 77.2167];
 
 export const ResidentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -55,8 +56,8 @@ export const ResidentDashboard: React.FC = () => {
     try {
       // The device's real position (high-accuracy GPS). Only if that fails do we fall back to the
       // default city centre, and we say so on screen.
-      let lat = LUCKNOW[0];
-      let lng = LUCKNOW[1];
+      let lat = DEFAULT_CITY[0];
+      let lng = DEFAULT_CITY[1];
       let where: string;
       let locNote: { text: string; fallback: boolean };
       try {
@@ -66,8 +67,8 @@ export const ResidentDashboard: React.FC = () => {
         where = `Device GPS (±${Math.round(fix.accuracy)} m)`;
         locNote = { text: `Sent with your live GPS location (±${Math.round(fix.accuracy)} m).`, fallback: false };
       } catch (e: any) {
-        where = user?.address ? `${user.address} (GPS unavailable; default city location used)` : 'GPS unavailable; default city location (Lucknow centre)';
-        locNote = { text: `${e?.message || 'Location unavailable.'} Your SOS was sent with the default city location (Lucknow centre), not your exact position. Tell responders where you are by phone.`, fallback: true };
+        where = user?.address ? `${user.address} (GPS unavailable; default city location used)` : 'GPS unavailable; default city location (Connaught Place, New Delhi)';
+        locNote = { text: `${e?.message || 'Location unavailable.'} Your SOS was sent with the default city location (Connaught Place, New Delhi), not your exact position. Tell responders where you are by phone.`, fallback: true };
       }
       setSosLocationNote(locNote);
 
