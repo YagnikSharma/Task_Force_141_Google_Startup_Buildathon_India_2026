@@ -1,7 +1,9 @@
 /** Google Maps engine (used when VITE_GOOGLE_MAPS_API_KEY is set): vector map tilted to 45°
  *  so Lucknow's buildings render in 3D, Advanced Markers and live route polylines. */
 import { useEffect, useState } from 'react';
-import { APIProvider, AdvancedMarker, InfoWindow, Map, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, AdvancedMarker, ColorScheme, InfoWindow, Map, useMap } from '@vis.gl/react-google-maps';
+import { MapControls, type Fix } from './MapControls';
+import { useMapTheme } from './mapTheme';
 import type { LiveMapProps } from './types';
 import { LUCKNOW } from './types';
 import {
@@ -50,18 +52,36 @@ function Focus({ data, focusIncidentId, pick }: Pick<LiveMapProps, 'data' | 'foc
   return null;
 }
 
+/** Pans to the device's GPS fix when the user presses "recenter on me". */
+function Recenter({ me }: { me: Fix | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (map && me) { map.panTo({ lat: me.lat, lng: me.lng }); if ((map.getZoom() || 0) < 16) map.setZoom(16); }
+  }, [map, me]);
+  return null;
+}
+
 export default function GoogleLiveMap({ data, focusIncidentId, pick, onPick, center, className, interactive3d = true }: LiveMapProps) {
   const [open, setOpen] = useState<Open>(null);
+  const [me, setMe] = useState<Fix | null>(null);
+  const [theme, toggleTheme] = useMapTheme();
   const c = center || data?.center || LUCKNOW;
   return (
-    <div className={className}>
+    <div className={`${className ?? ''} nsin-map-wrap`}>
       <APIProvider apiKey={KEY}>
         <Map
+          // The colour scheme is fixed when a Google map is created, so day/night remounts it.
+          key={theme}
+          colorScheme={theme === 'night' ? ColorScheme.DARK : ColorScheme.LIGHT}
           mapId={MAP_ID}
           defaultCenter={{ lat: c[0], lng: c[1] }}
           defaultZoom={14}
           defaultTilt={interactive3d ? 45 : 0}
-          defaultHeading={interactive3d ? -17 : 0}
+          defaultHeading={0}
+          // Simple pan and zoom only: no rotate or tilt gestures, no rotate control.
+          headingInteractionEnabled={false}
+          tiltInteractionEnabled={false}
+          rotateControl={false}
           gestureHandling="greedy"
           renderingType="VECTOR"
           clickableIcons={false}
@@ -98,9 +118,16 @@ export default function GoogleLiveMap({ data, focusIncidentId, pick, onPick, cen
             </InfoWindow>
           )}
           <Routes data={data} focusIncidentId={focusIncidentId} />
+          {me && (
+            <AdvancedMarker position={{ lat: me.lat, lng: me.lng }} zIndex={6} title="You are here">
+              <div className="nsin-me" />
+            </AdvancedMarker>
+          )}
           <Focus data={data} focusIncidentId={focusIncidentId} pick={pick} />
+          <Recenter me={me} />
         </Map>
       </APIProvider>
+      <MapControls theme={theme} onToggleTheme={toggleTheme} onLocated={(f) => setMe({ ...f })} />
     </div>
   );
 }

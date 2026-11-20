@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, AlertTriangle, Navigation, Radio, RefreshCw, Send, ShieldCheck } from 'lucide-react';
 import { LiveMap, MAP_ENGINE, useLiveMap } from '../components/map/LiveMap';
-import { PRIORITY_COLOR, SERVICE_EMOJI, etaText, nice } from '../components/map/markers';
+import { PRIORITY_COLOR, SERVICE_EMOJI, etaText, kmText, nice, remainingMetres, unitStatus } from '../components/map/markers';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
@@ -21,7 +21,7 @@ export const LiveMapPage: React.FC = () => {
     setBusy(id); setMsg(null);
     try {
       const unit = await api.demoDispatch(id);
-      setMsg(`Unit ${unit.label} dispatched. Watch it drive on the map (${etaText(unit.eta_seconds)}).`);
+      setMsg(`Simulated responder ${unit.label} dispatched (demo drive, ${kmText(remainingMetres(unit))}). Watch it drive on the map: ${etaText(unit.eta_seconds)}.`);
       setFocus(id);
       await refresh();
     } catch (e: any) {
@@ -95,13 +95,15 @@ export const LiveMapPage: React.FC = () => {
                     <button onClick={() => setFocus(r.heading_to_incident_id ?? undefined)} className="w-full text-left rounded-2xl border border-blue-100 bg-blue-50/60 px-3 py-2 hover:bg-blue-50">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-semibold text-slate-900">{SERVICE_EMOJI[r.service_type] || '🛵'} {r.label}</span>
-                        <span className="rounded-full bg-[#1a73e8] px-2 py-0.5 text-[10.5px] font-semibold text-white">{etaText(r.eta_seconds)}</span>
+                        {unitStatus(r).badge && (
+                          <span className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold text-white ${unitStatus(r).simulated ? 'bg-slate-500' : 'bg-[#1a73e8]'}`}>{unitStatus(r).badge}</span>
+                        )}
                       </div>
                       <div className="mt-0.5 text-[11.5px] text-slate-600 truncate">→ {titleOf(r.heading_to_incident_id)}</div>
                       <div className="mt-1.5 h-1.5 rounded-full bg-blue-100 overflow-hidden">
                         <div className="h-full bg-[#1a73e8] transition-all duration-1000" style={{ width: `${Math.round((r.progress ?? 0.1) * 100)}%` }} />
                       </div>
-                      <div className="mt-1 text-[10.5px] text-slate-500">{r.source === 'gps' ? 'Live GPS' : 'Demo drive'}</div>
+                      <div className="mt-1 text-[10.5px] text-slate-500">{unitStatus(r).text}</div>
                     </button>
                   </li>
                 ))}

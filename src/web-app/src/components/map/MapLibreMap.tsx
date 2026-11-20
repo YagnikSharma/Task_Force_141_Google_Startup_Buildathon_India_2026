@@ -6,13 +6,30 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // MapLibre v6 finds its worker next to its own module, which Vite does not copy. Ship it as an asset.
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { LiveMapProps } from './types';
+import { MapControls, type Fix } from './MapControls';
+import { useMapTheme, type MapTheme } from './mapTheme';
 import { LUCKNOW } from './types';
 import {
   hazardMarkerHtml, hazardPopupHtml, incidentMarkerHtml, incidentPopupHtml,
   responderMarkerHtml, responderPopupHtml,
 } from './markers';
 
-const STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+const STYLES: Record<MapTheme, string> = {
+  day: 'https://tiles.openfreemap.org/styles/liberty',
+  night: 'https://tiles.openfreemap.org/styles/dark',
+};
+type Routes = maplibregl.GeoJSONSourceSpecification['data'] & { type: 'FeatureCollection'; features: unknown[] };
+const NO_ROUTES: Routes = { type: 'FeatureCollection', features: [] };
+
+/** Route layers live in the style, so they are (re)added after every style load (day/night switch). */
+function addRouteLayers(m: maplibregl.Map, data: Routes) {
+  if (m.getSource('routes')) return;
+  m.addSource('routes', { type: 'geojson', data });
+  m.addLayer({ id: 'routes-casing', type: 'line', source: 'routes',
+    paint: { 'line-color': '#ffffff', 'line-width': 7, 'line-opacity': 0.9 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+  m.addLayer({ id: 'routes', type: 'line', source: 'routes',
+    paint: { 'line-color': '#1a73e8', 'line-width': 4, 'line-dasharray': [1.5, 1.2] }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+}
 const APP_BASE = import.meta.env.BASE_URL;
 maplibregl.setWorkerUrl(workerUrl);
 
@@ -41,6 +58,10 @@ export default function MapLibreMap({ data, focusIncidentId, pick, onPick, cente
   const ready = useRef(false);
   const focused = useRef<number | null>(null);
   const pending = useRef<(() => void) | null>(null);
+  const routes = useRef<Routes>(NO_ROUTES);
+  const me = useRef<maplibregl.Marker | null>(null);
+  const [theme, toggleTheme] = useMapTheme();
+  const themeRef = useRef(theme);
   onPickRef.current = onPick;
 
   // Create the map once.
@@ -49,21 +70,23 @@ export default function MapLibreMap({ data, focusIncidentId, pick, onPick, cente
     const c = center || data?.center || LUCKNOW;
     const m = new maplibregl.Map({
       container: box.current,
-      style: STYLE,
+      style: STYLES[themeRef.current],
       center: [c[1], c[0]],
       zoom: 13.2,
-      pitch: interactive3d ? 55 : 0,
-      bearing: interactive3d ? -17 : 0,
+      pitch: interactive3d ? 45 : 0,
+      bearing: 0,
+      // Simple pan and zoom only: no rotation (mouse, touch or keyboard) and no tilt gestures.
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchPitch: false,
       attributionControl: { compact: true },
     });
-    m.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+    m.touchZoomRotate.disableRotation();
+    m.keyboard.disableRotation();
+    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    m.on('style.load', () => addRouteLayers(m, routes.current));
     m.on('load', () => {
       ready.current = true;
-      m.addSource('routes', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-      m.addLayer({ id: 'routes-casing', type: 'line', source: 'routes',
-        paint: { 'line-color': '#ffffff', 'line-width': 7, 'line-opacity': 0.9 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
-      m.addLayer({ id: 'routes', type: 'line', source: 'routes',
-        paint: { 'line-color': '#1a73e8', 'line-width': 4, 'line-dasharray': [1.5, 1.2] }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
       pending.current?.();
       pending.current = null;
     });
@@ -110,18 +133,19 @@ export default function MapLibreMap({ data, focusIncidentId, pick, onPick, cente
         if (!seen.has(key)) { en.marker.remove(); entries.current.delete(key); }
       });
 
-      const routes = data.responders.filter((r) => r.heading_to_incident_id && r.route.length > 1 &&
+      const active = data.responders.filter((r) => r.heading_to_incident_id && r.route.length > 1 &&
         (focusIncidentId == null || r.heading_to_incident_id === focusIncidentId));
-      (m.getSource('routes') as maplibregl.GeoJSONSource | undefined)?.setData({
+      routes.current = {
         type: 'FeatureCollection',
-        features: routes.map((r) => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: r.route.map(([la, ln]) => [ln, la]) } })),
-      });
+        features: active.map((r) => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: r.route.map(([la, ln]) => [ln, la]) } })),
+      };
+      (m.getSource('routes') as maplibregl.GeoJSONSource | undefined)?.setData(routes.current);
 
       if (focusIncidentId != null && focused.current !== focusIncidentId) {
         const inc = data.incidents.find((i) => i.id === focusIncidentId);
         if (inc) {
           focused.current = focusIncidentId;
-          m.flyTo({ center: [inc.longitude, inc.latitude], zoom: 15.5, pitch: interactive3d ? 60 : 0, duration: 1600 });
+          m.flyTo({ center: [inc.longitude, inc.latitude], zoom: 15.5, duration: 1600 });
         }
       }
     };
@@ -145,5 +169,31 @@ export default function MapLibreMap({ data, focusIncidentId, pick, onPick, cente
     }
   }, [pick]);
 
-  return <div ref={box} className={className} />;
+  // Day/night: swap the tile style; DOM markers stay, route layers are re-added on style.load.
+  useEffect(() => {
+    if (themeRef.current === theme) return;
+    themeRef.current = theme;
+    map.current?.setStyle(STYLES[theme], { diff: false });
+  }, [theme]);
+
+  const onLocated = (f: Fix) => {
+    const m = map.current;
+    if (!m) return;
+    if (!me.current) {
+      const el = document.createElement('div');
+      el.className = 'nsin-me';
+      el.title = 'You are here';
+      me.current = new maplibregl.Marker({ element: el }).setLngLat([f.lng, f.lat]).addTo(m);
+    } else {
+      me.current.setLngLat([f.lng, f.lat]);
+    }
+    m.flyTo({ center: [f.lng, f.lat], zoom: Math.max(m.getZoom(), 15.5), duration: 1000 });
+  };
+
+  return (
+    <div className={`${className ?? ''} nsin-map-wrap`}>
+      <div ref={box} className="nsin-map-canvas" />
+      <MapControls theme={theme} onToggleTheme={toggleTheme} onLocated={onLocated} />
+    </div>
+  );
 }

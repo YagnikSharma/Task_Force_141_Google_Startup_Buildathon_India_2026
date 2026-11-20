@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, Clock, ArrowLeft, RefreshCw, CheckCircle2, AlertCircle, Send, Navigation, Radio, Scale } from 'lucide-react';
 import { LiveMap, useLiveMap } from '../components/map/LiveMap';
-import { etaText } from '../components/map/markers';
+import { unitStatus } from '../components/map/markers';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Incident, IncidentStatus, LiveMapData, SimilarIncident } from '../types';
@@ -238,8 +238,8 @@ export const IncidentDetailPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2"><MapPin className="w-4 h-4 text-[#ea4335]" /> Live location</h3>
             {myUnit ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1a73e8] px-3 py-1 text-xs font-semibold text-white">
-                <Navigation className="w-3.5 h-3.5" /> {myUnit.label} · {etaText(myUnit.eta_seconds)}
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold text-white ${unitStatus(myUnit).simulated ? 'bg-slate-600' : unitStatus(myUnit).moving ? 'bg-[#1a73e8]' : 'bg-slate-400'}`}>
+                <Navigation className="w-3.5 h-3.5" /> {myUnit.label} · {unitStatus(myUnit).text}
               </span>
             ) : incident.status === 'reported' ? (
               <span className="text-xs text-slate-500">Waiting for a responder to accept…</span>

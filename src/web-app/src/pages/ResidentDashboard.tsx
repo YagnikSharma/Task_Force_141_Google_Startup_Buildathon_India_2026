@@ -4,6 +4,8 @@ import { ShieldAlert, AlertTriangle, Users, MapPin, ArrowRight, ShieldCheck, Hea
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Incident, TrustedContact, CommunityInsights } from '../types';
+import { getDeviceLocation } from '../components/map/MapControls';
+import { LUCKNOW } from '../components/map/types';
 
 export const ResidentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -17,6 +19,7 @@ export const ResidentDashboard: React.FC = () => {
   const [sosCountdown, setSosCountdown] = useState<number>(3);
   const [sosSubmitting, setSosSubmitting] = useState<boolean>(false);
   const [sosSuccessNotice, setSosSuccessNotice] = useState<string | null>(null);
+  const [sosLocationNote, setSosLocationNote] = useState<{ text: string; fallback: boolean } | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -44,30 +47,34 @@ export const ResidentDashboard: React.FC = () => {
     setSosModalOpen(true);
     setSosCountdown(3);
     setSosSuccessNotice(null);
+    setSosLocationNote(null);
   };
 
   const handleExecuteSos = async () => {
     setSosSubmitting(true);
     try {
-      // Fetch browser geolocation if available
-      let lat = 12.9716;
-      let lng = 77.5946;
-      if (navigator.geolocation) {
-        try {
-          const pos: any = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000 });
-          });
-          lat = pos.coords.latitude;
-          lng = pos.coords.longitude;
-        } catch (e) {
-          console.warn("Geolocation lookup skipped or denied.");
-        }
+      // The device's real position (high-accuracy GPS). Only if that fails do we fall back to the
+      // default city centre, and we say so on screen.
+      let lat = LUCKNOW[0];
+      let lng = LUCKNOW[1];
+      let where: string;
+      let locNote: { text: string; fallback: boolean };
+      try {
+        const fix = await getDeviceLocation(10000);
+        lat = fix.lat;
+        lng = fix.lng;
+        where = `Device GPS (±${Math.round(fix.accuracy)} m)`;
+        locNote = { text: `Sent with your live GPS location (±${Math.round(fix.accuracy)} m).`, fallback: false };
+      } catch (e: any) {
+        where = user?.address ? `${user.address} (GPS unavailable; default city location used)` : 'GPS unavailable; default city location (Lucknow centre)';
+        locNote = { text: `${e?.message || 'Location unavailable.'} Your SOS was sent with the default city location (Lucknow centre), not your exact position. Tell responders where you are by phone.`, fallback: true };
       }
+      setSosLocationNote(locNote);
 
       const res = await api.triggerSOS({
         latitude: lat,
         longitude: lng,
-        location_address: user?.address || "Current Device GPS Coordinates",
+        location_address: where,
         description: `EMERGENCY SOS triggered by ${user?.full_name}. Immediate response requested.`
       });
 
@@ -77,9 +84,10 @@ export const ResidentDashboard: React.FC = () => {
       alert("Failed to send SOS: " + err.message);
     } finally {
       setSosSubmitting(false);
+      // The location note stays on the dashboard after the modal closes.
       setTimeout(() => {
         setSosModalOpen(false);
-      }, 2500);
+      }, 4000);
     }
   };
 
@@ -138,6 +146,14 @@ export const ResidentDashboard: React.FC = () => {
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                 <span>{sosSuccessNotice}</span>
               </div>
+            ) : null}
+            {sosLocationNote && sosSuccessNotice && (
+              <div className={`p-3 rounded-2xl text-xs text-left border ${sosLocationNote.fallback ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-slate-50 text-slate-700 border-slate-200'}`}>
+                {sosLocationNote.text}
+              </div>
+            )}
+            {sosSuccessNotice ? null : sosSubmitting ? (
+              <p className="text-xs text-slate-500">Getting your GPS location…</p>
             ) : (
               <div className="flex items-center justify-center gap-3 pt-2">
                 <button
@@ -158,6 +174,15 @@ export const ResidentDashboard: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Where the last SOS was sent from (stays visible after the modal closes). */}
+      {sosLocationNote && (
+        <div className={`flex items-start gap-2 rounded-2xl border p-4 text-xs font-semibold ${sosLocationNote.fallback ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`} role="status">
+          <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
+          <span className="flex-1">SOS location: {sosLocationNote.text}</span>
+          <button type="button" onClick={() => setSosLocationNote(null)} className="text-slate-500 hover:text-slate-800">Dismiss</button>
         </div>
       )}
 

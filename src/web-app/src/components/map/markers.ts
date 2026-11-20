@@ -26,6 +26,8 @@ export function nice(s: string): string {
 export function etaText(seconds?: number | null): string {
   if (seconds == null) return '';
   if (seconds < 60) return seconds <= 5 ? 'arriving' : `${seconds}s away`;
+  // Under 10 minutes, show seconds too, so the countdown is visibly ticking.
+  if (seconds < 600) return `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, '0')}s away`;
   return `${Math.round(seconds / 60)} min away`;
 }
 
@@ -40,11 +42,62 @@ export function incidentMarkerHtml(i: MapIncident, focused = false): string {
   </div>`;
 }
 
+/** Straight-line distance in metres. */
+export function metres(a: [number, number], b: [number, number]): number {
+  const R = 6371000, rad = Math.PI / 180;
+  const dLat = (b[0] - a[0]) * rad, dLng = (b[1] - a[1]) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/** Distance still to drive: from the unit's current position along the rest of its route. */
+export function remainingMetres(r: MapResponder): number | null {
+  if (!r.heading_to_incident_id || r.route.length < 2) return null;
+  const here: [number, number] = [r.latitude, r.longitude];
+  let best = 0, bestD = Infinity;
+  r.route.forEach((p, i) => { const d = metres(here, p); if (d < bestD) { bestD = d; best = i; } });
+  // Continue from the next route point unless we are already past the closest one.
+  let next = best;
+  if (best < r.route.length - 1 && metres(here, r.route[best + 1]) < metres(r.route[best], r.route[best + 1])) next = best + 1;
+  let total = metres(here, r.route[next]);
+  for (let i = next; i < r.route.length - 1; i++) total += metres(r.route[i], r.route[i + 1]);
+  return total;
+}
+
+export function kmText(m: number | null): string {
+  if (m == null) return '';
+  return m < 1000 ? `${Math.max(0, Math.round(m / 10) * 10)} m` : `${(m / 1000).toFixed(1)} km`;
+}
+
+/** ~30 km/h, the same city speed the server uses. */
+export const ROAD_SPEED_MPS = 8.3;
+
+/** One honest status for a responder. ETA is shown only while the unit is actually moving:
+ *  a live GPS unit (ETA from the remaining distance at city speed) or a labelled simulated drive. */
+export function unitStatus(r: MapResponder): { moving: boolean; simulated: boolean; badge: string; text: string } {
+  const left = remainingMetres(r);
+  const dist = kmText(left);
+  if (!r.heading_to_incident_id) {
+    return { moving: false, simulated: false, badge: '', text: r.is_available ? 'Available' : 'Off duty' };
+  }
+  if (r.source === 'simulated') {
+    const eta = etaText(r.eta_seconds);
+    return { moving: true, simulated: true, badge: `Simulated · ${eta}`,
+      text: `Simulated responder (demo drive) · ${dist} to go · ${eta}` };
+  }
+  if (r.source === 'gps') {
+    const eta = left != null ? etaText(Math.round(left / ROAD_SPEED_MPS)) : etaText(r.eta_seconds);
+    return { moving: true, simulated: false, badge: `${eta} · ${dist}`, text: `Live GPS · ${dist} to go · ${eta}` };
+  }
+  return { moving: false, simulated: false, badge: '',
+    text: `Assigned · not moving yet (no live GPS) · ${dist} away` };
+}
+
 export function responderMarkerHtml(r: MapResponder): string {
-  const moving = r.source !== 'base' && r.heading_to_incident_id;
-  return `<div class="nsin-unit ${moving ? 'is-moving' : ''}" title="${esc(r.label)}">
+  const st = unitStatus(r);
+  return `<div class="nsin-unit ${st.moving ? 'is-moving' : ''} ${st.simulated ? 'is-simulated' : ''}" title="${esc(r.label)}${st.simulated ? ' (simulated responder)' : ''}">
     <span class="nsin-unit-badge">${SERVICE_EMOJI[r.service_type] || '🛵'}</span>
-    ${moving ? `<span class="nsin-unit-eta">${esc(etaText(r.eta_seconds))}</span>` : ''}
+    ${st.badge ? `<span class="nsin-unit-eta ${st.simulated ? 'is-sim' : ''}">${esc(st.badge)}</span>` : ''}
   </div>`;
 }
 
@@ -62,11 +115,11 @@ export function incidentPopupHtml(i: MapIncident, appBase: string): string {
 }
 
 export function responderPopupHtml(r: MapResponder): string {
-  const src = r.source === 'gps' ? 'Live GPS' : r.source === 'simulated' ? 'Live (demo drive)' : 'At base';
+  const src = r.source === 'gps' ? 'Live GPS' : r.source === 'simulated' ? 'Simulated responder' : 'At base';
   return `<div class="nsin-pop">
     <div class="nsin-pop-k" style="color:#188038">${esc(nice(r.service_type))} · ${esc(src)}</div>
     <div class="nsin-pop-t">${esc(r.label)}</div>
-    <div class="nsin-pop-s">${r.heading_to_incident_id ? `En route · ${esc(etaText(r.eta_seconds))}` : r.is_available ? 'Available' : 'Off duty'}</div>
+    <div class="nsin-pop-s">${esc(unitStatus(r).text)}</div>
   </div>`;
 }
 
