@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Eye, Plus, MapPin, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { api } from '../services/api';
 import { ChildJourney } from '../types';
+import { nice } from '../lib/labels';
 
 export const ChildSafetyPage: React.FC = () => {
   const [journeys, setJourneys] = useState<ChildJourney[]>([]);
@@ -108,7 +109,7 @@ export const ChildSafetyPage: React.FC = () => {
                       j.status === 'alert_triggered' ? 'bg-red-100 text-red-800 animate-pulse' :
                       'bg-blue-100 text-blue-800'
                     }`}>
-                      {j.status.replace('_', ' ')}
+                      {nice(j.status)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">

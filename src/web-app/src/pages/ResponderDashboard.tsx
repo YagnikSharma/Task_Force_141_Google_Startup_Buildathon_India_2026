@@ -4,6 +4,7 @@ import { Activity, CheckCircle2, MapPin, RefreshCw, Power, Pill } from 'lucide-r
 import { api } from '../services/api';
 import { Incident, AssistanceRequest } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { priorityLabel, nice } from '../lib/labels';
 
 export const ResponderDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -59,7 +60,7 @@ export const ResponderDashboard: React.FC = () => {
   const handleAdvanceStatus = async (incidentId: number, nextStatus: string) => {
     setActionInProgress(incidentId);
     try {
-      await api.updateIncidentStatus(incidentId, nextStatus, `Status updated to ${nextStatus.replace('_', ' ')} by responder.`);
+      await api.updateIncidentStatus(incidentId, nextStatus, `Status updated to ${nice(nextStatus).toLowerCase()} by responder.`);
       await fetchAssignments();
     } catch (err: any) {
       alert("Error: " + err.message);
@@ -72,24 +73,24 @@ export const ResponderDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* Top Status Bar */}
-      <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="card p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-semibold mb-2 border border-brand-500/30">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold mb-2 border border-brand-200">
             <Activity className="w-3.5 h-3.5" />
             Verified Responder Command Center
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Officer {user?.full_name}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Assigned Corridor: Sector 4 Civic Jurisdiction • Ready for Tactical & Medical Deployment
           </p>
         </div>
 
         {/* Availability Toggle */}
-        <div className="flex items-center gap-4 bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
           <div>
-            <span className="text-[11px] text-slate-400 block font-medium">Duty Status</span>
+            <span className="text-[11px] text-slate-500 block font-medium">Duty Status</span>
             <span className={`text-sm font-bold flex items-center gap-1.5 ${isAvailable ? 'text-emerald-400' : 'text-slate-400'}`}>
               <span className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
               {isAvailable ? 'ON-DUTY AVAILABLE' : 'OFF-DUTY'}
@@ -156,9 +157,9 @@ export const ResponderDashboard: React.FC = () => {
                           inc.priority === 'P2_HIGH' ? 'bg-amber-100 text-amber-700' :
                           'bg-slate-100 text-slate-700'
                         }`}>
-                          {inc.priority}
+                          {priorityLabel(inc.priority)}
                         </span>
-                        <span className="text-xs text-slate-400 capitalize">• {inc.incident_type.replace('_', ' ')}</span>
+                        <span className="text-xs text-slate-400 capitalize">• {nice(inc.incident_type)}</span>
                       </div>
                       <h3 className="font-bold text-slate-900 text-lg mt-1">{inc.title}</h3>
                       <p className="text-xs text-slate-600 mt-1 leading-relaxed">{inc.description}</p>
@@ -170,7 +171,7 @@ export const ResponderDashboard: React.FC = () => {
                       inc.status === 'acknowledged' ? 'bg-amber-100 text-amber-800' :
                       'bg-red-100 text-red-800'
                     }`}>
-                      {inc.status.replace('_', ' ')}
+                      {nice(inc.status)}
                     </span>
                   </div>
 
@@ -267,9 +268,9 @@ export const ResponderDashboard: React.FC = () => {
           </div>
 
           {/* Responder Protocol Quick Reference */}
-          <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 space-y-3 text-xs">
-            <h4 className="font-bold text-brand-400 text-sm">Responder Operational SOP</h4>
-            <ul className="space-y-2 text-slate-300">
+          <div className="card p-5 space-y-3 text-sm text-slate-600">
+            <h4 className="font-bold text-brand-700 text-sm">Responder Operational SOP</h4>
+            <ul className="space-y-2 text-slate-600">
               <li>1. Acknowledge high-priority alerts within <strong>120 seconds</strong>.</li>
               <li>2. Verify medical notes before treating allergy/asthma residents.</li>
               <li>3. Log on-scene timestamp immediately upon arrival.</li>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Plus, Clock, ShoppingBag, Pill, RefreshCw } from 'lucide-react';
 import { api } from '../services/api';
 import { ElderCheckIn, AssistanceRequest } from '../types';
+import { nice } from '../lib/labels';
 
 export const ElderCarePage: React.FC = () => {
   const [checkins, setCheckins] = useState<ElderCheckIn[]>([]);
@@ -76,13 +77,13 @@ export const ElderCarePage: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* Header & Quick Daily Checkin */}
-      <div className="bg-gradient-to-r from-brand-900 via-slate-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg border border-brand-800/40 space-y-4">
+      <div className="card p-6 sm:p-8 space-y-4">
         <div>
-          <span className="text-brand-400 text-xs font-semibold uppercase tracking-wider block">
+          <span className="text-brand-700 text-xs font-semibold uppercase tracking-wider block">
             Senior Citizen & Vulnerable Resident Care
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold mt-1">Daily Welfare & Assistance</h1>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
             Confirm your wellness each day to keep family guardians and volunteer carers assured.
           </p>
         </div>
@@ -99,9 +100,9 @@ export const ElderCarePage: React.FC = () => {
           
           <button
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-3 rounded-xl border border-slate-700 transition text-xs"
+            className="inline-flex items-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-900 font-semibold px-4 py-3 rounded-xl border border-slate-200 transition text-xs"
           >
-            <Plus className="w-4 h-4 text-brand-400" />
+            <Plus className="w-4 h-4 text-brand-700" />
             Request Community Assistance
           </button>
         </div>
@@ -142,7 +143,7 @@ export const ElderCarePage: React.FC = () => {
                       r.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
                       'bg-amber-100 text-amber-800'
                     }`}>
-                      {r.status}
+                      {nice(r.status)}
                     </span>
                   </div>
                   <p className="text-xs text-slate-600">{r.description}</p>

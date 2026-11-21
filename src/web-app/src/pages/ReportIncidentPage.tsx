@@ -5,6 +5,7 @@ import { LiveMap } from '../components/map/LiveMap';
 import { api } from '../services/api';
 import { AIAnalysisResult } from '../types';
 import { isSynthetic, syntheticTriage } from '../services/synthetic';
+import { nice, priorityLabel } from '../lib/labels';
 
 export const ReportIncidentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -199,7 +200,7 @@ export const ReportIncidentPage: React.FC = () => {
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600 flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#1a73e8] shrink-0" />
             <span>
-              <strong className="text-slate-800">Priority: {priority ? priority.replace('_', ' ') : 'set automatically'}</strong>
+              <strong className="text-slate-800">Priority: {priority ? priorityLabel(priority) : 'set automatically'}</strong>
               {' '}by Gemini triage and the safety rules when you submit. A verified responder can change it later, with a logged reason.
             </span>
           </div>
@@ -217,23 +218,23 @@ export const ReportIncidentPage: React.FC = () => {
 
         {/* AI Assistant Column */}
         <div className="space-y-4">
-          <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 shadow-md space-y-4">
+          <div className="card p-5 space-y-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-brand-400" />
+              <Sparkles className="w-5 h-5 text-brand-700" />
               <h3 className="font-bold text-sm">AI Triage · Gemini</h3>
             </div>
 
             {aiResult ? (
-              <div className="space-y-3 text-xs text-slate-300">
+              <div className="space-y-3 text-xs text-slate-600">
                 <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                   <span className={`px-2 py-0.5 rounded-full font-bold ${aiResult.ai_engine?.startsWith('gemini') ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : 'bg-slate-700 text-slate-300'}`}>
                     {aiResult.ai_engine?.startsWith('gemini') ? `Analysed by ${aiResult.ai_engine.replace('gemini:', '')}` : isSynthetic(aiResult.ai_engine) ? 'Synthetic demo response' : 'Offline rule engine'}
                   </span>
                   {aiResult.gemini?.detected_language && (
-                    <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">{aiResult.gemini.detected_language}</span>
+                    <span className="px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">{aiResult.gemini.detected_language}</span>
                   )}
                   {aiResult.escalated && (
-                    <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 font-bold">Escalated</span>
+                    <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 font-bold">Escalated</span>
                   )}
                 </div>
 
@@ -243,31 +244,31 @@ export const ReportIncidentPage: React.FC = () => {
                   </a>
                 )}
                 {isSynthetic(aiResult.ai_engine) && (
-                  <div className="rounded-xl border border-amber-400/50 bg-amber-500/15 px-3 py-2 text-[11px] text-amber-200">
+                  <div className="rounded-xl border border-amber-400/50 bg-amber-50 px-3 py-2 text-[11px] text-amber-200">
                     <strong>Synthetic demo data.</strong> The live AI service could not be reached, so this result was computed on your device.
                   </div>
                 )}
                 {aiResult.gemini?.responder_briefing && (
                   <div className="bg-blue-950/40 p-3 rounded-xl border border-blue-900/50">
-                    <span className="text-blue-300 block text-[10px] uppercase font-bold">Responder Briefing</span>
-                    <p className="text-[11px] text-slate-200 mt-1">{aiResult.gemini.responder_briefing}</p>
+                    <span className="text-blue-700 block text-[10px] uppercase font-bold">Responder Briefing</span>
+                    <p className="text-[11px] text-slate-700 mt-1">{aiResult.gemini.responder_briefing}</p>
                   </div>
                 )}
-                <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Suggested Priority</span>
-                  <span className="text-amber-400 font-bold text-sm">{aiResult.suggested_priority}</span>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Suggested Priority</span>
+                  <span className="text-amber-700 font-bold text-sm">{aiResult.suggested_priority}</span>
                   {aiResult.rule_priority && aiResult.rule_priority !== aiResult.suggested_priority && (
-                    <span className="block text-[10px] text-blue-300 mt-0.5">
+                    <span className="block text-[10px] text-blue-700 mt-0.5">
                       Keyword rules said {aiResult.rule_priority}; Gemini escalated it (Gemini can raise a priority, never lower it).
                     </span>
                   )}
-                  <p className="text-[11px] text-slate-300 mt-1">{aiResult.triage_reasoning}</p>
+                  <p className="text-[11px] text-slate-600 mt-1">{aiResult.triage_reasoning}</p>
                 </div>
 
                 {aiResult.missing_critical_info.length > 0 && (
-                  <div className="bg-red-950/40 p-3 rounded-xl border border-red-900/40">
-                    <span className="text-red-400 font-semibold block mb-1">Missing Critical Information:</span>
-                    <ul className="list-disc list-inside space-y-1 text-slate-300 text-[11px]">
+                  <div className="bg-red-50 p-3 rounded-xl border border-red-200">
+                    <span className="text-red-600 font-semibold block mb-1">Missing Critical Information:</span>
+                    <ul className="list-disc list-inside space-y-1 text-slate-600 text-[11px]">
                       {aiResult.missing_critical_info.map((m, i) => (
                         <li key={i}>{m}</li>
                       ))}
@@ -276,12 +277,12 @@ export const ReportIncidentPage: React.FC = () => {
                 )}
 
                 {aiResult.immediate_safety_checklist.length > 0 && (
-                  <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                    <span className="text-brand-400 font-semibold block mb-1">Immediate Safety Actions:</span>
-                    <ul className="space-y-1 text-slate-300 text-[11px]">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="text-brand-700 font-semibold block mb-1">Immediate Safety Actions:</span>
+                    <ul className="space-y-1 text-slate-600 text-[11px]">
                       {aiResult.immediate_safety_checklist.map((a, i) => (
                         <li key={i} className="flex items-start gap-1.5">
-                          <CheckCircle2 className="w-3 h-3 text-brand-400 shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-3 h-3 text-brand-700 shrink-0 mt-0.5" />
                           <span>{a}</span>
                         </li>
                       ))}
@@ -290,15 +291,15 @@ export const ReportIncidentPage: React.FC = () => {
                 )}
 
                 {aiResult.retrieved_civic_protocols.length > 0 && (
-                  <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                    <span className="text-brand-400 font-semibold block mb-1 flex items-center gap-1">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="text-brand-700 font-semibold block mb-1 flex items-center gap-1">
                       <BookOpen className="w-3 h-3" />
                       Retrieved Municipal Protocol:
                     </span>
-                    <p className="text-slate-200 font-medium text-[11px]">
+                    <p className="text-slate-700 font-medium text-[11px]">
                       {aiResult.retrieved_civic_protocols[0].title}
                     </p>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
                       Source: {aiResult.retrieved_civic_protocols[0].source}
                     </span>
                   </div>
@@ -309,7 +310,7 @@ export const ReportIncidentPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div className="text-xs text-slate-400 space-y-2 py-4">
+              <div className="text-xs text-slate-500 space-y-2 py-4">
                 <p>
                   Type your incident description and click <strong>"Analyze with AI Triage"</strong> to receive real-time assistance.
                 </p>

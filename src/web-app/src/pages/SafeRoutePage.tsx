@@ -146,12 +146,12 @@ const SafeRoutePage: React.FC = () => {
         <div className="flex flex-wrap gap-2">
           <div className="inline-flex rounded-full border border-slate-300 bg-white p-1 text-xs font-semibold" role="group" aria-label="Time of travel">
             {demo.times.map((t) => (
-              <button key={t.hour} onClick={() => setHour(t.hour)} className={`rounded-full px-3 py-1.5 ${hour === t.hour ? 'bg-slate-900 text-white' : 'text-slate-600'}`}>{t.label}</button>
+              <button key={t.hour} onClick={() => setHour(t.hour)} className={`rounded-full px-3 py-1.5 ${hour === t.hour ? 'bg-brand-500 text-white' : 'text-slate-600'}`}>{t.label}</button>
             ))}
           </div>
           <div className="inline-flex rounded-full border border-slate-300 bg-white p-1 text-xs font-semibold" role="group" aria-label="Travel mode">
-            <button onClick={() => setMode('walk')} className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 ${mode === 'walk' ? 'bg-slate-900 text-white' : 'text-slate-600'}`}><Footprints className="w-3.5 h-3.5" /> Walk</button>
-            <button onClick={() => setMode('ride')} className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 ${mode === 'ride' ? 'bg-slate-900 text-white' : 'text-slate-600'}`}><Bike className="w-3.5 h-3.5" /> Two-wheeler</button>
+            <button onClick={() => setMode('walk')} className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 ${mode === 'walk' ? 'bg-brand-500 text-white' : 'text-slate-600'}`}><Footprints className="w-3.5 h-3.5" /> Walk</button>
+            <button onClick={() => setMode('ride')} className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 ${mode === 'ride' ? 'bg-brand-500 text-white' : 'text-slate-600'}`}><Bike className="w-3.5 h-3.5" /> Two-wheeler</button>
           </div>
         </div>
       </div>

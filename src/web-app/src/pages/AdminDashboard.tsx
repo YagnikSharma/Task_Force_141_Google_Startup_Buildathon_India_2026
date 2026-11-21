@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, Database, CheckCircle2, RefreshCw, Clock } from 'lucide-react';
 import { api } from '../services/api';
+import { nice } from '../lib/labels';
 
 export const AdminDashboard: React.FC = () => {
   const [health, setHealth] = useState<any>(null);
@@ -50,7 +51,7 @@ export const AdminDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-brand-400 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold mb-2">
             <UserCheck className="w-3.5 h-3.5" />
             Civic Operations & Administrative Oversight
           </div>
@@ -70,21 +71,21 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Database & Infrastructure Diagnostics Card */}
-      <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="card p-6 sm:p-8 space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-600/30 border border-brand-500/40 p-2 flex items-center justify-center">
-              <Database className="w-6 h-6 text-brand-400" />
+            <div className="w-10 h-10 rounded-xl bg-brand-600/30 border border-brand-200 p-2 flex items-center justify-center">
+              <Database className="w-6 h-6 text-brand-700" />
             </div>
             <div>
               <h2 className="text-lg font-bold">Database Adapter Layer</h2>
-              <span className="text-xs text-slate-400">PostgreSQL + pgvector on Cloud SQL, Gemini on Google AI</span>
+              <span className="text-xs text-slate-500">PostgreSQL + pgvector on Cloud SQL, Gemini on Google AI</span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">Status:</span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
+            <span className="text-xs text-slate-500">Status:</span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               {health?.status?.toUpperCase() || 'CHECKING'}
             </span>
@@ -92,47 +93,47 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-          <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
-            <span className="text-slate-400 block text-[11px] uppercase font-bold">Configured Database Mode</span>
-            <span className="text-base font-extrabold text-brand-400 mt-1 block uppercase">
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span className="text-slate-500 block text-[11px] uppercase font-bold">Configured Database Mode</span>
+            <span className="text-base font-extrabold text-brand-700 mt-1 block uppercase">
               {db?.mode || '—'}
             </span>
-            <span className="text-[11px] text-slate-300 mt-1 block">
+            <span className="text-[11px] text-slate-600 mt-1 block">
               Driver: {db?.driver || '—'}
             </span>
             {db?.details?.server_version && (
-              <span className="text-[11px] text-slate-300 mt-1 block">
+              <span className="text-[11px] text-slate-600 mt-1 block">
                 Server: {db.details.server_version} · pgvector {db.details.pgvector ?? '—'}
               </span>
             )}
           </div>
 
-          <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
-            <span className="text-slate-400 block text-[11px] uppercase font-bold">AI Intelligence Engine</span>
-            <span className="text-base font-extrabold text-white mt-1 block">
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span className="text-slate-500 block text-[11px] uppercase font-bold">AI Intelligence Engine</span>
+            <span className="text-base font-extrabold text-slate-900 mt-1 block">
               {gemini?.configured ? `Gemini · ${gemini.model}` : 'Rule-based triage (Gemini off)'}
             </span>
-            <span className="text-[11px] text-slate-300 mt-1 block">
+            <span className="text-[11px] text-slate-600 mt-1 block">
               {vectors?.enabled
                 ? `Embeddings: ${vectors.model} (${vectors.dimensions} dims) in pgvector`
                 : 'Rule agents: Intake, Triage, Knowledge, Insights'}
             </span>
           </div>
 
-          <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
-            <span className="text-slate-400 block text-[11px] uppercase font-bold">Backend Framework</span>
-            <span className="text-base font-extrabold text-white mt-1 block">
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span className="text-slate-500 block text-[11px] uppercase font-bold">Backend Framework</span>
+            <span className="text-base font-extrabold text-slate-900 mt-1 block">
               Python 3.11 • FastAPI
             </span>
-            <span className="text-[11px] text-slate-300 mt-1 block">
+            <span className="text-[11px] text-slate-600 mt-1 block">
               Environment: {health?.environment || 'development'}
             </span>
           </div>
         </div>
 
-        <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60 text-xs text-slate-300">
-          <strong className="text-white block mb-1">Google Cloud Integration Status:</strong>
-          <p className="text-brand-300">
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-600">
+          <strong className="text-slate-900 block mb-1">Google Cloud Integration Status:</strong>
+          <p className="text-brand-700">
             {db?.connected
               ? `✓ Connected to PostgreSQL (${db.details?.database ?? 'Cloud SQL'})${db.details?.cloud_sql_socket ? ' through the Cloud SQL socket' : ''}. Server time ${db.details?.server_time ?? '—'}.`
               : `✗ Database connection failed: ${db?.details?.error ?? 'unknown error'}`}
@@ -158,7 +159,7 @@ export const AdminDashboard: React.FC = () => {
                     {r.badge_number}
                   </span>
                 </div>
-                <span className="text-xs text-slate-500 capitalize">{r.service_type.replace('_', ' ')}</span>
+                <span className="text-xs text-slate-500 capitalize">{nice(r.service_type)}</span>
                 <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
                   <span>Rating: <strong className="text-slate-700">{r.rating} ★</strong></span>
                   <span>•</span>

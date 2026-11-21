@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Plus, RefreshCw, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
 import { CommunityInsights, CommunityHazard } from '../types';
+import { priorityLabel, nice } from '../lib/labels';
 
 export const CommunitySafetyDashboard: React.FC = () => {
   const [insights, setInsights] = useState<CommunityInsights | null>(null);
@@ -110,15 +111,15 @@ export const CommunitySafetyDashboard: React.FC = () => {
       </div>
 
       {/* AI Community Advisory Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-brand-950 text-white rounded-3xl p-6 border border-slate-800 shadow-md flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-brand-600/30 border border-brand-500/40 p-2 flex items-center justify-center shrink-0">
-          <Sparkles className="w-6 h-6 text-brand-400" />
+      <div className="card p-6 flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-brand-600/30 border border-brand-200 p-2 flex items-center justify-center shrink-0">
+          <Sparkles className="w-6 h-6 text-brand-700" />
         </div>
         <div>
-          <span className="text-xs font-bold text-brand-400 uppercase tracking-wider block">
+          <span className="text-xs font-bold text-brand-700 uppercase tracking-wider block">
             Community Intelligence Synthesis
           </span>
-          <p className="text-sm text-slate-200 mt-1 leading-relaxed">
+          <p className="text-sm text-slate-700 mt-1 leading-relaxed">
             {insights?.ai_safety_advisory || "Vigilance index optimal. Patrol routes active across Sector 4. No major violent hazards detected."}
           </p>
         </div>
@@ -156,7 +157,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                     const late = r.p90_ack_minutes != null && r.p90_ack_minutes > r.ack_target_minutes;
                     return (
                       <tr key={r.priority} className="border-b border-slate-50">
-                        <td className="py-2 font-mono text-xs font-bold text-slate-700">{r.priority}</td>
+                        <td className="py-2 text-xs font-semibold text-slate-700">{priorityLabel(r.priority)}</td>
                         <td className="py-2 text-right text-slate-700">{r.acknowledged}/{r.incidents}</td>
                         <td className="py-2 text-right text-slate-900 font-semibold">{fmt(r.median_ack_minutes)}</td>
                         <td className={`py-2 text-right font-semibold ${late ? 'text-red-600' : 'text-slate-900'}`}>{fmt(r.p90_ack_minutes)}</td>
@@ -178,7 +179,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                 {insights.hotspots.map((h) => (
                   <li key={h.location} className="flex items-start justify-between gap-3 text-sm">
                     <span className="flex items-start gap-2 text-slate-800">
-                      <span className="w-5 h-5 shrink-0 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">{h.rank}</span>
+                      <span className="w-5 h-5 shrink-0 rounded-full bg-brand-500 text-white text-[11px] font-bold flex items-center justify-center">{h.rank}</span>
                       {h.location}
                     </span>
                     <span className="text-xs text-slate-500 whitespace-nowrap">{h.incidents} reports{h.open_incidents ? ` · ${h.open_incidents} open` : ''}</span>
@@ -218,7 +219,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm">{h.title}</h3>
                     <span className="text-[11px] font-semibold text-slate-500 capitalize">
-                      {h.hazard_type.replace('_', ' ')}
+                      {nice(h.hazard_type)}
                     </span>
                   </div>
 

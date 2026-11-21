@@ -6,6 +6,7 @@ import { unitStatus } from '../components/map/markers';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Incident, IncidentStatus, LiveMapData, SimilarIncident } from '../types';
+import { priorityLabel, nice } from '../lib/labels';
 
 export const IncidentDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -178,9 +179,9 @@ export const IncidentDetailPage: React.FC = () => {
                 incident.priority === 'P2_HIGH' ? 'bg-amber-100 text-amber-700' :
                 'bg-slate-100 text-slate-700'
               }`}>
-                {incident.priority}
+                {priorityLabel(incident.priority)}
               </span>
-              <span className="text-xs text-slate-400 capitalize">• {incident.incident_type.replace('_', ' ')}</span>
+              <span className="text-xs text-slate-400 capitalize">• {nice(incident.incident_type)}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">{incident.title}</h1>
           </div>
@@ -192,7 +193,7 @@ export const IncidentDetailPage: React.FC = () => {
               incident.status === 'acknowledged' ? 'bg-amber-100 text-amber-800' :
               'bg-red-100 text-red-800 animate-pulse'
             }`}>
-              {incident.status.replace('_', ' ')}
+              {nice(incident.status)}
             </span>
 
             <button
@@ -270,21 +271,21 @@ export const IncidentDetailPage: React.FC = () => {
           <div>
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2"><Scale className="w-4 h-4 text-[#1a73e8]" /> Change priority</h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              The AI and safety rules set {incident.priority.replace('_', ' ')}. You have the final say; your reason is recorded on the timeline and in the audit log.
+              The AI and safety rules set {priorityLabel(incident.priority)}. You have the final say; your reason is recorded on the timeline and in the audit log.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr_auto] gap-2">
             <select value={overridePriority} onChange={(e) => setOverridePriority(e.target.value)}
               className="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white">
               {['P1_CRITICAL', 'P2_HIGH', 'P3_MODERATE', 'P4_ADVISORY'].filter((p) => p !== incident.priority).map((p) => (
-                <option key={p} value={p}>{p.replace('_', ' ')}</option>
+                <option key={p} value={p}>{priorityLabel(p)}</option>
               ))}
             </select>
             <input required minLength={10} maxLength={500} value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)}
               placeholder="Reason (min 10 characters), e.g. On site: no injuries, area secured"
               className="px-3 py-2 text-sm border border-slate-300 rounded-xl" />
             <button type="submit" disabled={updating || overrideReason.trim().length < 10}
-              className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">Apply</button>
+              className="px-4 py-2 rounded-xl bg-brand-500 text-white text-sm font-semibold disabled:opacity-40">Apply</button>
           </div>
         </form>
       )}
@@ -348,7 +349,7 @@ export const IncidentDetailPage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={updating}
-                      className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
+                      className="bg-brand-500 hover:bg-brand-600 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
                     >
                       <Send className="w-3.5 h-3.5 text-brand-400" />
                       Post
@@ -376,7 +377,7 @@ export const IncidentDetailPage: React.FC = () => {
                   </span>
                   <span className="text-xs text-slate-600 whitespace-nowrap">
                     {s.same_location && <strong className="text-amber-800">Same location · </strong>}
-                    {Math.round(s.similarity * 100)}% similar · {s.status.replace(/_/g, ' ')}
+                    {Math.round(s.similarity * 100)}% similar · {nice(s.status)}
                   </span>
                 </Link>
               </li>
@@ -405,7 +406,7 @@ export const IncidentDetailPage: React.FC = () => {
 
               <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100 space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-900 capitalize">{h.status.replace('_', ' ')}</span>
+                  <span className="font-bold text-slate-900 capitalize">{nice(h.status)}</span>
                   <span className="text-[11px] text-slate-400 font-mono">
                     {new Date(h.created_at).toLocaleString()}
                   </span>

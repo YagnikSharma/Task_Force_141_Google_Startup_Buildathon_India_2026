@@ -1,3 +1,4 @@
+import { priorityLabel } from '../lib/labels';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, AlertTriangle, Navigation, Radio, RefreshCw, Send, ShieldCheck } from 'lucide-react';
@@ -124,7 +125,7 @@ export const LiveMapPage: React.FC = () => {
                   <button className="w-full text-left" onClick={() => setFocus(i.id)}>
                     <div className="flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-wide" style={{ color: PRIORITY_COLOR[i.priority] }}>
                       <span className="h-2 w-2 rounded-full" style={{ background: PRIORITY_COLOR[i.priority] }} />
-                      {i.priority.replace('_', ' ')} · {nice(i.status)}
+                      {priorityLabel(i.priority)} · {nice(i.status)}
                       {i.mine && <span className="ml-auto rounded-full bg-slate-900 px-1.5 py-0.5 text-[9.5px] text-white">yours</span>}
                     </div>
                     <div className="mt-0.5 text-[13px] font-semibold text-slate-900 leading-snug">{i.title}</div>
