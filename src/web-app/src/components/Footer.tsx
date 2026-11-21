@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import Mark from './Mark';
 import React from 'react';
-import { Phone } from 'lucide-react';
+import { ArrowUpRight, Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+
+/** The landing site: research, Gemini proof, pitch deck, achievements and team. */
+export const STORY_URL = 'https://nsin-landing.web.app';
 
 const HELPLINES: [string, string][] = [
   ['112', 'Emergency'],
@@ -22,7 +25,7 @@ export const Footer: React.FC = () => {
         <span className="flex items-center gap-1.5 text-xs font-semibold text-red-700 shrink-0">
           <Phone className="w-3.5 h-3.5" /> Helplines (India)
         </span>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
+        <div className="flex flex-1 gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
           {HELPLINES.map(([num, label]) => (
             <a
               key={num}
@@ -33,6 +36,9 @@ export const Footer: React.FC = () => {
             </a>
           ))}
         </div>
+        <a href={STORY_URL} target="_blank" rel="noopener" className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700">
+          The full story: research, pitch and team <ArrowUpRight className="w-3.5 h-3.5" />
+        </a>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import {
   ArrowRight, Baby, BadgeCheck, Brain, EyeOff, HeartHandshake, Lock, MapPin, Phone, Route, ScrollText, ShieldAlert, Sparkles, Users,
 } from 'lucide-react';
 import { Mascot } from '../components/Mascot';
+import { STORY_URL } from '../components/Footer';
 
 /* Every claim on this page is either live in the product or labelled. Numbers are only ones we measured. */
 
@@ -97,6 +98,9 @@ export const LandingPage: React.FC = () => {
               </Link>
             </div>
             <p className="mt-4 text-xs text-slate-500">NSIN never replaces 112. Critical cases always show "Call 112 now" first.</p>
+            <a href={STORY_URL} target="_blank" rel="noopener" className="mt-5 inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-100">
+              <Sparkles className="w-4 h-4" /> Judges: see the research, Gemini proof and pitch <ArrowRight className="w-4 h-4" />
+            </a>
 
             <dl className="mt-10 grid grid-cols-3 gap-3 max-w-lg">
               {[

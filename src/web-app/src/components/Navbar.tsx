@@ -87,7 +87,7 @@ export const Navbar: React.FC = () => {
                 <a href="#features" className="px-3 py-2 rounded-full text-sm font-medium text-slate-600 hover:bg-slate-100">Features</a>
                 <a href="#privacy" className="px-3 py-2 rounded-full text-sm font-medium text-slate-600 hover:bg-slate-100">Privacy</a>
                 <NavLink to="/safe-route" className={linkCls}>Safe Route</NavLink>
-                <NavLink to="/map" className={linkCls}>Live map</NavLink>
+                <a href="https://nsin-landing.web.app" target="_blank" rel="noopener" className="px-3 py-2 rounded-full text-sm font-semibold text-brand-700 hover:bg-brand-50">Our story ↗</a>
               </>
             )}
           </nav>
@@ -159,6 +159,9 @@ export const Navbar: React.FC = () => {
               ))}
             </nav>
             <div className="p-4 border-t border-slate-100 space-y-3">
+              <a href="https://nsin-landing.web.app" target="_blank" rel="noopener" className="flex items-center justify-center gap-2 rounded-xl bg-brand-50 py-3 text-sm font-semibold text-brand-700">
+                About NSIN: research, pitch, team ↗
+              </a>
               <a href="tel:112" className="flex items-center justify-center gap-2 rounded-xl border border-red-200 py-3 text-sm font-semibold text-red-700">
                 Call 112 (national emergency)
               </a>
