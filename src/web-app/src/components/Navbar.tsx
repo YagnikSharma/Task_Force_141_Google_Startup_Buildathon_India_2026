@@ -113,6 +113,12 @@ export const Navbar: React.FC = () => {
               >
                 Live Map
               </Link>
+              <Link
+                to="/safe-route"
+                className={`px-3 py-1.5 rounded-lg transition ${isActive('/safe-route') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
+              >
+                Safe Route
+              </Link>
             </>
           ) : (
             <>
@@ -198,6 +204,7 @@ export const Navbar: React.FC = () => {
                 <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-teal-400 font-semibold">Admin Oversight</Link>
               )}
               <Link to="/map" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Live Map</Link>
+              <Link to="/safe-route" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Safe Route (Women in Transit)</Link>
               <Link to="/community" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Community Insights & Hazards</Link>
               <button onClick={handleLogout} className="w-full text-left py-2 text-red-400 font-medium">Sign Out</button>
             </div>

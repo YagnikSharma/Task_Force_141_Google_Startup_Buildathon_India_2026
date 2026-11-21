@@ -17,6 +17,8 @@ import { ResponderDashboard } from './pages/ResponderDashboard';
 import { CommunitySafetyDashboard } from './pages/CommunitySafetyDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { LiveMapPage } from './pages/LiveMapPage';
+import { lazy, Suspense } from 'react';
+const SafeRoutePage = lazy(() => import('./pages/SafeRoutePage'));
 import { CopilotPanel } from './components/CopilotPanel';
 
 // Route Guard
@@ -66,6 +68,7 @@ export const AppContent: React.FC = () => {
           {/* Community Hazards & Map */}
           <Route path="/community" element={<CommunitySafetyDashboard />} />
           <Route path="/map" element={<LiveMapPage />} />
+          <Route path="/safe-route" element={<Suspense fallback={<div className="p-10 text-center text-sm text-slate-500">Loading…</div>}><SafeRoutePage /></Suspense>} />
 
           {/* Admin Route */}
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />

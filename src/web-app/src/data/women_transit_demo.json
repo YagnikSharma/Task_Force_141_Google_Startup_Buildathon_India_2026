@@ -1,0 +1,47 @@
+{
+  "label": "Demo data: Delhi",
+  "note": "Hand-made sample points for the demo. Not live CCTV, police or business data.",
+  "trip": { "from": "Rajiv Chowk Metro Gate 7", "to": "Babar Road, Bengali Market" },
+  "weights": {
+    "no_streetlight": 18,
+    "no_cctv": 12,
+    "closed_shops": 8,
+    "liquor_shop": 14,
+    "isolated_stretch": 16,
+    "cctv": -6,
+    "open_shop": -5,
+    "police_booth": -10,
+    "well_lit": -6
+  },
+  "night_multiplier": 1.6,
+  "max_bonus": 10,
+  "routes": [
+    {
+      "id": "main",
+      "name": "Via Barakhamba Road (main road)",
+      "minutes": 16,
+      "path": [[28.6328, 77.2197], [28.6318, 77.2236], [28.6300, 77.2262], [28.6291, 77.2300], [28.6292, 77.2333]],
+      "points": [
+        { "type": "cctv", "lat": 28.6320, "lng": 77.2228, "label": "CCTV at Barakhamba crossing" },
+        { "type": "police_booth", "lat": 28.6302, "lng": 77.2258, "label": "Police booth" },
+        { "type": "open_shop", "lat": 28.6295, "lng": 77.2285, "label": "24x7 chemist" },
+        { "type": "well_lit", "lat": 28.6291, "lng": 77.2310, "label": "Well-lit stretch" },
+        { "type": "no_cctv", "lat": 28.6297, "lng": 77.2272, "label": "No CCTV near bus stop" },
+        { "type": "closed_shops", "lat": 28.6292, "lng": 77.2325, "label": "Shops shut after 9 PM" }
+      ]
+    },
+    {
+      "id": "shortcut",
+      "name": "Via Tolstoy Marg back lanes (shortcut)",
+      "minutes": 12,
+      "path": [[28.6328, 77.2197], [28.6290, 77.2205], [28.6268, 77.2240], [28.6275, 77.2290], [28.6292, 77.2333]],
+      "points": [
+        { "type": "no_streetlight", "lat": 28.6285, "lng": 77.2212, "label": "Streetlight out (community report)" },
+        { "type": "isolated_stretch", "lat": 28.6270, "lng": 77.2232, "label": "Isolated stretch beside parking" },
+        { "type": "liquor_shop", "lat": 28.6269, "lng": 77.2262, "label": "Liquor shop, crowd at night" },
+        { "type": "no_cctv", "lat": 28.6272, "lng": 77.2280, "label": "No CCTV for 400 m" },
+        { "type": "open_shop", "lat": 28.6285, "lng": 77.2315, "label": "Dhaba open late" }
+      ]
+    }
+  ]
+}
