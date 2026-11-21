@@ -16,7 +16,7 @@ def test_confirm_file_report_runs_real_workflow(client, resident):
     r = client.post("/api/v1/agent/confirm", headers=resident, json={
         "tool": "file_incident_report",
         "args": {"title": "Streetlight out near gate 2", "description": "The lane is completely dark since 8 pm.",
-                 "incident_type": "hazard", "location_address": "Gate 2, Gomti Nagar"}})
+                 "incident_type": "hazard", "location_address": "Gate 2, Gole Market"}})
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["done"] and body["incident"]["reference_code"].startswith("INC-")
@@ -65,7 +65,7 @@ def test_gemini_agent_reads_live_data_with_tools(client, admin):
 @needs_gemini
 def test_gemini_agent_proposes_write_action_for_confirmation(client, resident):
     r = client.post("/api/v1/agent/chat", headers=resident, json={
-        "message": "Please file a report: the streetlight outside Sector 12 park, Indira Nagar is broken and the lane is dark. "
+        "message": "Please file a report: the streetlight outside Babar Road park, Bengali Market is broken and the lane is dark. "
                    "Category hazard. Don't ask me anything else, just prepare it."})
     assert r.status_code == 200, r.text
     body = r.json()

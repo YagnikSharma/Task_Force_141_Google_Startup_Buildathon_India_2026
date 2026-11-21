@@ -29,7 +29,7 @@ steps:
       - --region=${_REGION}
       - --allow-unauthenticated
       - --add-cloudsql-instances=${_SQL_INSTANCE}
-      - --min-instances=0
+      - --min-instances=1  # one warm instance while judges test (no cold start); set back to 0 after judging
       # Cost guard: scale to zero when idle, at most 2 instances (the demo never needs more).
       - --max-instances=2
       - --cpu=1

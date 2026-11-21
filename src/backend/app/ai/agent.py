@@ -41,7 +41,7 @@ STATUSES = ["reported", "acknowledged", "responder_en_route", "on_scene", "resol
 HAZARD_TYPES = ["dark_street", "road_block", "aggressive_animals", "electrical", "flooding"]
 
 SYSTEM_PROMPT = """You are Jugnu (Hindi for "firefly"), the friendly assistant inside the Neighbourhood Safety Intelligence Network,
-a community-safety app used in Lucknow, India. You help residents, verified volunteer responders and
+a community-safety app used in Delhi NCR, India. You help residents, verified volunteer responders and
 RWA admins.
 
 Rules:

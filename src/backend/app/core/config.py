@@ -84,8 +84,8 @@ class Settings:
 
     # Login throttling (per client IP + email)
     # Live map. Demo mode lets staff dispatch a simulated responder so a judge can watch one move.
-    MAP_CITY: str = os.getenv("MAP_CITY", "Lucknow")
-    MAP_CENTER: List[float] = [float(v) for v in os.getenv("MAP_CENTER", "26.8560,80.9800").split(",")]
+    MAP_CITY: str = os.getenv("MAP_CITY", "New Delhi")
+    MAP_CENTER: List[float] = [float(v) for v in os.getenv("MAP_CENTER", "28.6315,77.2167").split(",")]
     DEMO_MODE: bool = _flag("DEMO_MODE")
     RESPONDER_PING_TTL_SECONDS: int = int(os.getenv("RESPONDER_PING_TTL_SECONDS", "900"))
 

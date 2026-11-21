@@ -8,7 +8,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { LiveMapProps } from './types';
 import { MapControls, type Fix } from './MapControls';
 import { useMapTheme, type MapTheme } from './mapTheme';
-import { LUCKNOW } from './types';
+import { DEFAULT_CENTER } from './types';
 import {
   hazardMarkerHtml, hazardPopupHtml, incidentMarkerHtml, incidentPopupHtml,
   responderMarkerHtml, responderPopupHtml,
@@ -67,7 +67,7 @@ export default function MapLibreMap({ data, focusIncidentId, pick, onPick, cente
   // Create the map once.
   useEffect(() => {
     if (!box.current) return;
-    const c = center || data?.center || LUCKNOW;
+    const c = center || data?.center || DEFAULT_CENTER;
     const m = new maplibregl.Map({
       container: box.current,
       style: STYLES[themeRef.current],

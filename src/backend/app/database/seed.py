@@ -29,7 +29,7 @@ def seed_data(session):
         is_active=True,
         is_verified=True,
         emergency_notes="Asthma patient, keeps inhaler. Blood group O+",
-        address="Flat 402, Oak Ridge Apartments, Vibhuti Khand, Gomti Nagar"
+        address="Flat 402, Oak Ridge Apartments, Gole Market"
     )
     resident2 = User(
         email="maya.sen@neighbourhood.org",
@@ -40,7 +40,7 @@ def seed_data(session):
         is_active=True,
         is_verified=True,
         emergency_notes="Mother of 10-year-old child Aarav",
-        address="House 18, Sector 12, Indira Nagar"
+        address="House 18, Babar Road, Bengali Market"
     )
     elder_user = User(
         email="elder.ramesh@neighbourhood.org",
@@ -51,7 +51,7 @@ def seed_data(session):
         is_active=True,
         is_verified=True,
         emergency_notes="Senior citizen (76 yrs), mobility assistance required, hypertensive",
-        address="Villa 7, Pine Wood Enclave, Mahanagar"
+        address="Villa 7, Pine Wood Enclave, Golf Links"
     )
 
     # 2. Responders
@@ -64,7 +64,7 @@ def seed_data(session):
         is_active=True,
         is_verified=True,
         emergency_notes="Trained in First Aid & Tactical Community Response",
-        address="Gomti Nagar Police Assistance Booth"
+        address="Shivaji Stadium Police Assistance Booth"
     )
     responder_user2 = User(
         email="medic.anita@neighbourhood.org",
@@ -75,7 +75,7 @@ def seed_data(session):
         is_active=True,
         is_verified=True,
         emergency_notes="Paramedic & General Physician",
-        address="Civic Health Clinic, Indira Nagar"
+        address="Civic Health Clinic, Bengali Market"
     )
 
     # 3. Administrator
@@ -87,7 +87,7 @@ def seed_data(session):
         role="admin",
         is_active=True,
         is_verified=True,
-        address="Neighbourhood Command Centre, Hazratganj"
+        address="Neighbourhood Command Centre, Janpath"
     )
 
     session.add_all([resident1, resident2, elder_user, responder_user1, responder_user2, admin_user])
@@ -99,8 +99,8 @@ def seed_data(session):
         badge_number="CP-704",
         service_type="security",
         is_available=True,
-        current_lat=26.8520,
-        current_lng=80.9930,
+        current_lat=28.6390,
+        current_lng=77.2090,
         rating=4.9,
         is_verified_by_admin=True
     )
@@ -109,8 +109,8 @@ def seed_data(session):
         badge_number="MED-102",
         service_type="medical",
         is_available=True,
-        current_lat=26.8750,
-        current_lng=80.9880,
+        current_lat=28.6295,
+        current_lng=77.2335,
         rating=5.0,
         is_verified_by_admin=True
     )
@@ -143,8 +143,8 @@ def seed_data(session):
     cj = ChildJourney(
         guardian_id=resident2.id,
         child_name="Aarav Sen (Age 10)",
-        origin="St. Xavier's Academy, Aliganj",
-        destination="House 18, Sector 12, Indira Nagar",
+        origin="Model Academy, Minto Road",
+        destination="House 18, Babar Road, Bengali Market",
         expected_arrival_time=now + datetime.timedelta(minutes=45),
         status="active",
         last_check_in=now - datetime.timedelta(minutes=10),
@@ -177,9 +177,9 @@ def seed_data(session):
         title="Malfunctioning Streetlight Near Park Alley",
         hazard_type="dark_street",
         severity="medium",
-        latitude=26.8392,
-        longitude=81.0085,
-        address="Lane 3, Behind Janeshwar Mishra Park, Gomti Nagar",
+        latitude=28.6328,
+        longitude=77.2183,
+        address="Lane 3, Behind Central Park, Connaught Place",
         status="verified",
         verified_at=now - datetime.timedelta(hours=2)
     )
@@ -188,9 +188,9 @@ def seed_data(session):
         title="Open Construction Pit Without Barricade",
         hazard_type="road_block",
         severity="high",
-        latitude=26.8548,
-        longitude=80.9986,
-        address="Patrakarpuram Crossing, Gomti Nagar",
+        latitude=28.6298,
+        longitude=77.2245,
+        address="Barakhamba Road Crossing, Connaught Place",
         status="active"
     )
     session.add_all([hazard1, hazard2])
@@ -204,9 +204,9 @@ def seed_data(session):
         incident_type="suspicious_activity",
         priority="P2_HIGH",
         status="acknowledged",
-        location_address="Oak Ridge Apartments, Basement 2, Vibhuti Khand, Gomti Nagar",
-        latitude=26.8641,
-        longitude=81.0058,
+        location_address="Oak Ridge Apartments, Basement 2, Gole Market",
+        latitude=28.6355,
+        longitude=77.2050,
         assigned_responder_id=responder_user1.id,
         created_at=now - datetime.timedelta(minutes=25)
     )
@@ -245,60 +245,60 @@ def seed_data(session):
 HISTORY = [
     (27, 21, "priya", "vikram", "Streetlight out behind the park",
      "The streetlight on Lane 3 behind the community park is not working and the lane is completely dark at night.",
-     "hazard", "P3_MODERATE", "Lane 3, Behind Janeshwar Mishra Park, Gomti Nagar", 22, 1440),
+     "hazard", "P3_MODERATE", "Lane 3, Behind Central Park, Connaught Place", 22, 1440),
     (26, 22, "maya", "vikram", "Lane 3 lamp not working",
      "Street lamp near the park on Lane 3 is still off, the whole lane is pitch dark after sunset.",
-     "hazard", "P3_MODERATE", "Lane 3, Behind Janeshwar Mishra Park, Gomti Nagar", 35, 1300),
+     "hazard", "P3_MODERATE", "Lane 3, Behind Central Park, Connaught Place", 35, 1300),
     (24, 23, "priya", "vikram", "Man following women near park lane",
      "A man has been following women walking alone on the dark lane behind the park late at night.",
-     "suspicious_activity", "P2_HIGH", "Lane 3, Behind Janeshwar Mishra Park, Gomti Nagar", 7, 95),
+     "suspicious_activity", "P2_HIGH", "Lane 3, Behind Central Park, Connaught Place", 7, 95),
     (22, 9, "ramesh", "anita", "Fell in the bathroom",
      "I slipped in the bathroom and hurt my hip, I cannot get up on my own.",
-     "medical", "P1_CRITICAL", "Flat 12, Shanti Senior Residency, Indira Nagar", 1.5, 70),
+     "medical", "P1_CRITICAL", "Flat 12, Shanti Senior Residency, Bengali Market", 1.5, 70),
     (20, 18, "maya", "anita", "Child not back from tuition",
      "My daughter has not returned from tuition, she is 40 minutes late and not answering her phone.",
-     "child_alert", "P2_HIGH", "Bright Minds Tuition Centre, Kapoorthala, Aliganj", 4, 55),
+     "child_alert", "P2_HIGH", "Bright Minds Tuition Centre, Paharganj", 4, 55),
     (18, 22, "priya", "vikram", "Masked men checking car doors",
      "Two masked men were trying the door handles of parked cars in the basement.",
-     "suspicious_activity", "P2_HIGH", "Oak Ridge Apartments, Basement 2, Vibhuti Khand, Gomti Nagar", 9, 120),
+     "suspicious_activity", "P2_HIGH", "Oak Ridge Apartments, Basement 2, Gole Market", 9, 120),
     (15, 7, "ramesh", "anita", "Missed medicine delivery",
      "My blood pressure medicine delivery did not arrive and I have only one day left.",
-     "elder_welfare", "P3_MODERATE", "Flat 12, Shanti Senior Residency, Indira Nagar", 40, 300),
+     "elder_welfare", "P3_MODERATE", "Flat 12, Shanti Senior Residency, Bengali Market", 40, 300),
     (13, 20, "maya", "vikram", "Open pit without barricade",
      "There is an open construction pit on the corner with no barricade or light; a scooter nearly fell in.",
-     "hazard", "P2_HIGH", "Patrakarpuram Crossing, Gomti Nagar", 12, 2880),
+     "hazard", "P2_HIGH", "Barakhamba Road Crossing, Connaught Place", 12, 2880),
     (11, 23, "priya", "vikram", "Basement gate left open at night",
      "The basement gate was left open again after midnight and strangers walked in.",
-     "suspicious_activity", "P3_MODERATE", "Oak Ridge Apartments, Basement 2, Vibhuti Khand, Gomti Nagar", 28, 240),
+     "suspicious_activity", "P3_MODERATE", "Oak Ridge Apartments, Basement 2, Gole Market", 28, 240),
     (9, 13, "ramesh", "anita", "Neighbour fainted in the lift",
      "An elderly neighbour fainted in the lift and is breathing but not responding properly.",
-     "medical", "P1_CRITICAL", "Shanti Senior Residency, Block A Lift, Indira Nagar", 2, 60),
+     "medical", "P1_CRITICAL", "Shanti Senior Residency, Block A Lift, Bengali Market", 2, 60),
     (6, 19, "maya", "vikram", "Waterlogging after rain",
      "Heavy rain has flooded the underpass and two-wheelers are getting stuck.",
-     "hazard", "P3_MODERATE", "Patrakarpuram Crossing, Gomti Nagar", 50, 600),
+     "hazard", "P3_MODERATE", "Barakhamba Road Crossing, Connaught Place", 50, 600),
     (4, 22, "priya", "vikram", "Suspicious van parked for hours",
      "A van without number plates has been parked near the basement entrance since evening.",
-     "suspicious_activity", "P3_MODERATE", "Oak Ridge Apartments, Basement 2, Vibhuti Khand, Gomti Nagar", 18, None),
+     "suspicious_activity", "P3_MODERATE", "Oak Ridge Apartments, Basement 2, Gole Market", 18, None),
     (2, 8, "ramesh", "anita", "Elderly resident not answering door",
      "My neighbour Mrs. Rao has not answered her door or phone since yesterday evening.",
-     "elder_welfare", "P2_HIGH", "Flat 14, Shanti Senior Residency, Indira Nagar", 6, 45),
+     "elder_welfare", "P2_HIGH", "Flat 14, Shanti Senior Residency, Bengali Market", 6, 45),
     (0, None, "maya", None, "Stray dogs chasing children",
      "A pack of stray dogs is chasing children near the school bus stop every morning.",
-     "hazard", "P3_MODERATE", "School Bus Stop, Sector B, Aliganj", None, None),
+     "hazard", "P3_MODERATE", "School Bus Stop, Minto Road", None, None),
 ]
 
 
-# Map coordinates of the demo places (Lucknow). History rows get a small deterministic offset so
+# Map coordinates of the demo places (New Delhi, around Connaught Place). History rows get a small deterministic offset so
 # repeat reports at one place do not sit exactly on top of each other on the map.
 PLACE_COORDS = {
-    "Lane 3, Behind Janeshwar Mishra Park, Gomti Nagar": (26.8392, 81.0085),
-    "Flat 12, Shanti Senior Residency, Indira Nagar": (26.8812, 80.9991),
-    "Flat 14, Shanti Senior Residency, Indira Nagar": (26.8814, 80.9994),
-    "Shanti Senior Residency, Block A Lift, Indira Nagar": (26.8810, 80.9988),
-    "Bright Minds Tuition Centre, Kapoorthala, Aliganj": (26.8868, 80.9442),
-    "Oak Ridge Apartments, Basement 2, Vibhuti Khand, Gomti Nagar": (26.8641, 81.0058),
-    "Patrakarpuram Crossing, Gomti Nagar": (26.8548, 80.9986),
-    "School Bus Stop, Sector B, Aliganj": (26.8951, 80.9409),
+    "Lane 3, Behind Central Park, Connaught Place": (28.6328, 77.2183),
+    "Flat 12, Shanti Senior Residency, Bengali Market": (28.6290, 77.2330),
+    "Flat 14, Shanti Senior Residency, Bengali Market": (28.6292, 77.2333),
+    "Shanti Senior Residency, Block A Lift, Bengali Market": (28.6288, 77.2327),
+    "Bright Minds Tuition Centre, Paharganj": (28.6448, 77.2140),
+    "Oak Ridge Apartments, Basement 2, Gole Market": (28.6355, 77.2050),
+    "Barakhamba Road Crossing, Connaught Place": (28.6298, 77.2245),
+    "School Bus Stop, Minto Road": (28.6370, 77.2260),
 }
 
 

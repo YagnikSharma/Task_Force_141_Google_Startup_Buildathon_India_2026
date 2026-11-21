@@ -124,7 +124,7 @@ Flash costs are a few cents for a whole demo day.
 
 1. **Landing page →** "Open the app" → log in as **resident**.
 2. **Report incident:**
-   - Type: *"Ek aadmi raat se gali mein ghoom raha hai, mask pehna hai, Sector 12 Indira Nagar."*
+   - Type: *"Ek aadmi raat se gali mein ghoom raha hai, mask pehna hai, Babar Road, Bengali Market."*
    - Press Analyse: Gemini triage, priority and cited protocol appear.
    - Submit.
 3. **Ask Copilot:**

@@ -1,11 +1,11 @@
 /** Google Maps engine (used when VITE_GOOGLE_MAPS_API_KEY is set): vector map tilted to 45°
- *  so Lucknow's buildings render in 3D, Advanced Markers and live route polylines. */
+ *  so city buildings render in 3D, Advanced Markers and live route polylines. */
 import { useEffect, useState } from 'react';
 import { APIProvider, AdvancedMarker, ColorScheme, InfoWindow, Map, useMap } from '@vis.gl/react-google-maps';
 import { MapControls, type Fix } from './MapControls';
 import { useMapTheme } from './mapTheme';
 import type { LiveMapProps } from './types';
-import { LUCKNOW } from './types';
+import { DEFAULT_CENTER } from './types';
 import {
   hazardMarkerHtml, hazardPopupHtml, incidentMarkerHtml, incidentPopupHtml,
   responderMarkerHtml, responderPopupHtml,
@@ -65,7 +65,7 @@ export default function GoogleLiveMap({ data, focusIncidentId, pick, onPick, cen
   const [open, setOpen] = useState<Open>(null);
   const [me, setMe] = useState<Fix | null>(null);
   const [theme, toggleTheme] = useMapTheme();
-  const c = center || data?.center || LUCKNOW;
+  const c = center || data?.center || DEFAULT_CENTER;
   return (
     <div className={`${className ?? ''} nsin-map-wrap`}>
       <APIProvider apiKey={KEY}>

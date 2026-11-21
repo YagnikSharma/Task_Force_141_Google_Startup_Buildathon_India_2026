@@ -87,7 +87,7 @@ export const IncidentDetailPage: React.FC = () => {
     if (!incident || incident.latitude == null || incident.longitude == null) return null;
     if (live && live.incidents.some((i) => i.id === incident.id)) return live;
     return {
-      city: 'Lucknow', center: [incident.latitude, incident.longitude], hazards: [],
+      city: 'New Delhi', center: [incident.latitude, incident.longitude], hazards: [],
       responders: live?.responders.filter((r) => r.heading_to_incident_id === incident.id) || [],
       server_time: new Date().toISOString(), demo_mode: false,
       incidents: [{ id: incident.id, reference_code: incident.reference_code, title: incident.title, incident_type: incident.incident_type,

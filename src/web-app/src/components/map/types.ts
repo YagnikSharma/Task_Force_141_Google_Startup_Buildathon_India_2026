@@ -13,4 +13,5 @@ export interface LiveMapProps {
   interactive3d?: boolean;
 }
 
-export const LUCKNOW: [number, number] = [26.856, 80.98];
+/** Fallback centre before data arrives: Connaught Place, New Delhi. */
+export const DEFAULT_CENTER: [number, number] = [28.6315, 77.2167];

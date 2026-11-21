@@ -50,7 +50,7 @@ export const LiveMapPage: React.FC = () => {
               <span className="absolute inline-flex h-full w-full rounded-full bg-[#34a853] opacity-60 animate-ping" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#34a853]" />
             </span>
-            Live · {data?.city || 'Lucknow'}
+            Live · {data?.city || 'New Delhi'}
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">Community safety map</h1>
           <p className="text-sm text-slate-500">

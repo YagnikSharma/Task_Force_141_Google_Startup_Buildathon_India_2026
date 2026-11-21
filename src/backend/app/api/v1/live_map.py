@@ -26,6 +26,7 @@ from backend.app.schemas.safety_schemas import (
 router = APIRouter(prefix="/map", tags=["Live Map"])
 
 ROAD_SPEED_MPS = 8.3  # ~30 km/h, a realistic city speed for a two-wheeler responder
+DEMO_DRIVE_MPS = 10.0  # ~36 km/h for simulated demo drives
 EN_ROUTE_STATUSES = ("acknowledged", "responder_en_route")
 
 
@@ -182,7 +183,7 @@ def demo_dispatch(
     db: Session = Depends(get_db),
 ):
     """Demo mode: send a simulated responder from their base to the incident over ~90 s, so the
-    live map shows a moving unit without anyone driving around Lucknow."""
+    live map shows a moving unit without anyone driving around the city."""
     if not settings.DEMO_MODE:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Demo mode is off.")
     ensure_verified_staff(current_user)
@@ -211,10 +212,12 @@ def demo_dispatch(
                       "Responder dispatched and en route (live tracking on the community map).", request)
     db.query(ResponderTrack).filter(ResponderTrack.responder_user_id == responder_id, ResponderTrack.active.is_(True)) \
         .update({ResponderTrack.active: False}, synchronize_session=False)
-    distance = _metres((prof.current_lat, prof.current_lng), (incident.latitude, incident.longitude))
+    # Drive time from the street distance at a city speed of ~36 km/h (bounded for the demo).
+    path = street_route((prof.current_lat, prof.current_lng), (incident.latitude, incident.longitude))
+    distance = sum(_metres(path[i], path[i + 1]) for i in range(len(path) - 1))
     track = ResponderTrack(responder_user_id=responder_id, incident_id=incident.id, from_lat=prof.current_lat,
                            from_lng=prof.current_lng, started_at=datetime.datetime.utcnow(),
-                           duration_seconds=int(min(150, max(45, distance / 40))), simulated=True, active=True)
+                           duration_seconds=int(min(600, max(30, distance / DEMO_DRIVE_MPS))), simulated=True, active=True)
     db.add(track)
     record_audit(db, "demo_dispatch", "incident", incident.id, user_id=current_user.id, request=request,
                  details={"responder_user_id": responder_id, "duration_s": track.duration_seconds})
