@@ -65,10 +65,10 @@ class Settings:
     GOOGLE_GENAI_USE_VERTEXAI: bool = _flag("GOOGLE_GENAI_USE_VERTEXAI", "false")
     GOOGLE_CLOUD_PROJECT: str = os.getenv("GOOGLE_CLOUD_PROJECT", "")
     GOOGLE_CLOUD_LOCATION: str = os.getenv("GOOGLE_CLOUD_LOCATION", "asia-south1")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")  # 3.8-flash timed out (504) on 21 Nov; lite answers in ~2 s
     # Tried in order when the primary model is overloaded (503) or retired (404).
     GEMINI_FALLBACK_MODELS: List[str] = [m.strip() for m in os.getenv(
-        "GEMINI_FALLBACK_MODELS", "gemini-3.5-flash,gemini-3.1-flash-lite").split(",") if m.strip()]
+        "GEMINI_FALLBACK_MODELS", "gemini-3.5-flash").split(",") if m.strip()]
     GEMINI_EMBED_MODEL: str = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
     EMBEDDING_DIM: int = int(os.getenv("EMBEDDING_DIM", "768"))
     GEMINI_TIMEOUT_SECONDS: int = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "12"))  # per request
