@@ -148,6 +148,11 @@ export const ResidentDashboard: React.FC = () => {
                 <span>{sosSuccessNotice}</span>
               </div>
             ) : null}
+            {sosSuccessNotice && (
+              <a href="tel:112" className="flex items-center justify-between rounded-2xl bg-red-600 px-4 py-3 text-sm font-bold text-white hover:bg-red-500">
+                <span>If anyone is in danger, call 112 now</span><span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">112</span>
+              </a>
+            )}
             {sosLocationNote && sosSuccessNotice && (
               <div className={`p-3 rounded-2xl text-xs text-left border ${sosLocationNote.fallback ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-slate-50 text-slate-700 border-slate-200'}`}>
                 {sosLocationNote.text}

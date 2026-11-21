@@ -9,7 +9,7 @@ import { api } from '../services/api';
 export const LiveMapPage: React.FC = () => {
   const { user } = useAuth();
   const staff = user?.role === 'responder' || user?.role === 'admin';
-  const { data, error, updatedAt, refresh } = useLiveMap(4000, !!user);
+  const { data, error, updatedAt, refresh, synthetic } = useLiveMap(4000, !!user);
   const [focus, setFocus] = useState<number | undefined>();
   const [busy, setBusy] = useState<number | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -53,6 +53,11 @@ export const LiveMapPage: React.FC = () => {
             Live · {data?.city || 'New Delhi'}
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">Community safety map</h1>
+          {synthetic && (
+            <div className="mt-2 inline-flex rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
+              Synthetic demo data · the live feed is unreachable right now
+            </div>
+          )}
           <p className="text-sm text-slate-500">
             Open alerts, hazards and responders on the move. Updates every 4 seconds.
             {!staff && ' Other residents’ alerts are shown as approximate areas to protect their privacy.'}

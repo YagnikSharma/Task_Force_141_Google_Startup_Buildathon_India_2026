@@ -4,6 +4,7 @@ import { MapPin, Sparkles, CheckCircle2, ArrowRight, Loader2, BookOpen, AlertCir
 import { LiveMap } from '../components/map/LiveMap';
 import { api } from '../services/api';
 import { AIAnalysisResult } from '../types';
+import { isSynthetic, syntheticTriage } from '../services/synthetic';
 
 export const ReportIncidentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,8 +55,12 @@ export const ReportIncidentPage: React.FC = () => {
       }
       return res;
     } catch (err: any) {
-      console.error("AI assistance failed:", err);
-      return null;
+      // Live service unreachable: fall back to a clearly labelled on-device result so the resident still gets guidance.
+      console.error("AI assistance failed, using synthetic fallback:", err);
+      const res = syntheticTriage(`${description} ${locationAddress || ''}`);
+      setAiResult(res);
+      setPriority(res.suggested_priority);
+      return res;
     } finally {
       setAnalyzing(false);
     }
@@ -222,7 +227,7 @@ export const ReportIncidentPage: React.FC = () => {
               <div className="space-y-3 text-xs text-slate-300">
                 <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                   <span className={`px-2 py-0.5 rounded-full font-bold ${aiResult.ai_engine?.startsWith('gemini') ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : 'bg-slate-700 text-slate-300'}`}>
-                    {aiResult.ai_engine?.startsWith('gemini') ? `Analysed by ${aiResult.ai_engine.replace('gemini:', '')}` : 'Offline rule engine'}
+                    {aiResult.ai_engine?.startsWith('gemini') ? `Analysed by ${aiResult.ai_engine.replace('gemini:', '')}` : isSynthetic(aiResult.ai_engine) ? 'Synthetic demo response' : 'Offline rule engine'}
                   </span>
                   {aiResult.gemini?.detected_language && (
                     <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">{aiResult.gemini.detected_language}</span>
@@ -232,6 +237,16 @@ export const ReportIncidentPage: React.FC = () => {
                   )}
                 </div>
 
+{aiResult.suggested_priority === 'P1_CRITICAL' && (
+                  <a href="tel:112" className="flex items-center justify-between gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-white font-bold text-sm shadow-lg shadow-red-900/40 hover:bg-red-500">
+                    <span>Life-threatening? Call 112 now</span><span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">112</span>
+                  </a>
+                )}
+                {isSynthetic(aiResult.ai_engine) && (
+                  <div className="rounded-xl border border-amber-400/50 bg-amber-500/15 px-3 py-2 text-[11px] text-amber-200">
+                    <strong>Synthetic demo data.</strong> The live AI service could not be reached, so this result was computed on your device.
+                  </div>
+                )}
                 {aiResult.gemini?.responder_briefing && (
                   <div className="bg-blue-950/40 p-3 rounded-xl border border-blue-900/50">
                     <span className="text-blue-300 block text-[10px] uppercase font-bold">Responder Briefing</span>

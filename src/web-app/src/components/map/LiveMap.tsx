@@ -3,6 +3,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../../services/api';
 import type { LiveMapData } from '../../types';
+import { syntheticLiveMap } from '../../services/synthetic';
 import type { LiveMapProps } from './types';
 import './map.css';
 
@@ -23,15 +24,21 @@ export function useLiveMap(pollMs = 4000, enabled = true) {
   const [data, setData] = useState<LiveMapData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const [synthetic, setSynthetic] = useState(false);
+  const hasLive = useRef(false);
   const timer = useRef<number | undefined>(undefined);
 
   const refresh = useCallback(async () => {
     try {
       setData(await api.getLiveMap());
+      hasLive.current = true;
+      setSynthetic(false);
       setUpdatedAt(new Date());
       setError(null);
     } catch (e: any) {
       setError(e?.message || 'Live map unavailable');
+      // Never show an empty map: until live data arrives, show a labelled synthetic scene.
+      if (!hasLive.current) { setData(syntheticLiveMap()); setSynthetic(true); }
     }
   }, []);
 
@@ -49,5 +56,5 @@ export function useLiveMap(pollMs = 4000, enabled = true) {
     return () => { stopped = true; window.clearTimeout(timer.current); document.removeEventListener('visibilitychange', onVis); };
   }, [enabled, pollMs, refresh]);
 
-  return { data, error, updatedAt, refresh };
+  return { data, error, updatedAt, refresh, synthetic };
 }

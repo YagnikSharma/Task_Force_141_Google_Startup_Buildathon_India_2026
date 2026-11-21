@@ -1,46 +1,55 @@
 {
-  "label": "Demo data: Delhi",
-  "note": "Hand-made sample points for the demo. Not live CCTV, police or business data.",
+  "label": "Demo · synthetic data (Delhi)",
+  "note": "Synthetic sample points for the demo, not live CCTV, police or business data.",
   "trip": { "from": "Rajiv Chowk Metro Gate 7", "to": "Babar Road, Bengali Market" },
-  "weights": {
-    "no_streetlight": 18,
-    "no_cctv": 12,
-    "closed_shops": 8,
-    "liquor_shop": 14,
-    "isolated_stretch": 16,
-    "cctv": -6,
-    "open_shop": -5,
-    "police_booth": -10,
-    "well_lit": -6
-  },
-  "night_multiplier": 1.6,
+  "weights": { "no_streetlight": 12, "no_cctv": 6, "liquor_shop": 8, "isolated_stretch": 10 },
+  "place_weights": { "shop": 3, "pharmacy": 4, "hospital": 5, "petrol_pump": 3, "transport": 4, "police_booth": 8, "cctv": 4 },
+  "night_multiplier": 1.5,
   "max_bonus": 10,
+  "modes": {
+    "walk": { "label": "Walking", "gap_per_100m": 2 },
+    "ride": { "label": "Two-wheeler", "gap_per_100m": 1 }
+  },
+  "times": [
+    { "label": "2 PM", "hour": 14 },
+    { "label": "8 PM", "hour": 20 },
+    { "label": "11 PM", "hour": 23 },
+    { "label": "2 AM", "hour": 26 }
+  ],
   "routes": [
     {
       "id": "main",
       "name": "Via Barakhamba Road (main road)",
-      "minutes": 16,
+      "minutes": { "walk": 16, "ride": 6 },
       "path": [[28.6328, 77.2197], [28.6318, 77.2236], [28.6300, 77.2262], [28.6291, 77.2300], [28.6292, 77.2333]],
-      "points": [
-        { "type": "cctv", "lat": 28.6320, "lng": 77.2228, "label": "CCTV at Barakhamba crossing" },
-        { "type": "police_booth", "lat": 28.6302, "lng": 77.2258, "label": "Police booth" },
-        { "type": "open_shop", "lat": 28.6295, "lng": 77.2285, "label": "24x7 chemist" },
-        { "type": "well_lit", "lat": 28.6291, "lng": 77.2310, "label": "Well-lit stretch" },
-        { "type": "no_cctv", "lat": 28.6297, "lng": 77.2272, "label": "No CCTV near bus stop" },
-        { "type": "closed_shops", "lat": 28.6292, "lng": 77.2325, "label": "Shops shut after 9 PM" }
+      "blind": [
+        { "type": "no_streetlight", "lat": 28.6309, "lng": 77.2249, "label": "Flickering streetlight near the underpass" },
+        { "type": "no_cctv", "lat": 28.6291, "lng": 77.2306, "label": "No CCTV for ~150 m" }
+      ],
+      "places": [
+        { "type": "cctv", "lat": 28.6320, "lng": 77.2228, "label": "CCTV at Barakhamba crossing", "open": 0, "close": 48 },
+        { "type": "shop", "lat": 28.6316, "lng": 77.2240, "label": "Convenience store", "open": 10, "close": 23 },
+        { "type": "police_booth", "lat": 28.6302, "lng": 77.2258, "label": "Police booth", "open": 0, "close": 48 },
+        { "type": "transport", "lat": 28.6297, "lng": 77.2272, "label": "Bus stop (night buses)", "open": 5, "close": 25 },
+        { "type": "pharmacy", "lat": 28.6295, "lng": 77.2285, "label": "24x7 chemist", "open": 0, "close": 48 },
+        { "type": "petrol_pump", "lat": 28.6292, "lng": 77.2318, "label": "Petrol pump (24x7)", "open": 0, "close": 48 }
       ]
     },
     {
       "id": "shortcut",
       "name": "Via Tolstoy Marg back lanes (shortcut)",
-      "minutes": 12,
+      "minutes": { "walk": 12, "ride": 5 },
       "path": [[28.6328, 77.2197], [28.6290, 77.2205], [28.6268, 77.2240], [28.6275, 77.2290], [28.6292, 77.2333]],
-      "points": [
+      "blind": [
         { "type": "no_streetlight", "lat": 28.6285, "lng": 77.2212, "label": "Streetlight out (community report)" },
         { "type": "isolated_stretch", "lat": 28.6270, "lng": 77.2232, "label": "Isolated stretch beside parking" },
         { "type": "liquor_shop", "lat": 28.6269, "lng": 77.2262, "label": "Liquor shop, crowd at night" },
-        { "type": "no_cctv", "lat": 28.6272, "lng": 77.2280, "label": "No CCTV for 400 m" },
-        { "type": "open_shop", "lat": 28.6285, "lng": 77.2315, "label": "Dhaba open late" }
+        { "type": "no_cctv", "lat": 28.6272, "lng": 77.2280, "label": "No CCTV for ~400 m" }
+      ],
+      "places": [
+        { "type": "shop", "lat": 28.6300, "lng": 77.2203, "label": "Kirana store", "open": 9, "close": 21 },
+        { "type": "pharmacy", "lat": 28.6274, "lng": 77.2286, "label": "Chemist", "open": 9, "close": 22 },
+        { "type": "shop", "lat": 28.6285, "lng": 77.2315, "label": "Dhaba", "open": 12, "close": 25 }
       ]
     }
   ]
