@@ -72,3 +72,42 @@ def test_more_severe_never_downgrades():
     assert more_severe("P3_MODERATE", "P1_CRITICAL") == "P1_CRITICAL"
     assert more_severe("P1_CRITICAL", "P4_ADVISORY") == "P1_CRITICAL"
     assert more_severe("P2_HIGH", "P2_HIGH") == "P2_HIGH"
+
+
+# --- Hindi / Hinglish cues (offline rules must not under-rate these without Gemini) -------------
+
+@pytest.mark.parametrize("text, category, priority", [
+    ("Bachao! Ek aadmi chaku leke mera peecha kar raha hai", "sos", "P1_CRITICAL"),
+    ("Papa gir gaye hain, saans nahi le pa rahe", "medical", "P1_CRITICAL"),
+    ("Ghar mein aag lag gayi, jaldi aao", "hazard", "P1_CRITICAL"),
+    ("Meri beti school se nahi aayi", "child_alert", "P2_HIGH"),
+    ("Dadi gir gayi bathroom mein", "medical", "P2_HIGH"),
+    ("Dadi phone nahi utha rahi subah se", "elder_welfare", "P2_HIGH"),
+    ("Dada ji behosh ho gaye", "medical", "P1_CRITICAL"),
+    ("Gali mein do ladke ladkiyon ko ched rahe hain", "suspicious_activity", "P2_HIGH"),
+])
+def test_hinglish_reports_are_triaged_offline(text, category, priority):
+    assert triage(text) == (category, priority)
+
+
+def test_hinglish_pursuit_is_at_least_high():
+    _, priority = triage("Koi peecha kar raha hai")
+    assert priority in ("P1_CRITICAL", "P2_HIGH")
+
+
+@pytest.mark.parametrize("text, priority", [
+    # "aage" (ahead) and "baag" (garden) must not trigger the fire cue "aag"
+    ("Aage wali sadak par gaddha hai", "P3_MODERATE"),
+    ("Baag ki light kharab hai", "P3_MODERATE"),
+    # Hinglish chatter with no danger cue stays low
+    ("Kal society meeting hai, sab log aana", "P3_MODERATE"),
+])
+def test_hinglish_negative_cases_are_not_escalated(text, priority):
+    assert triage(text)[1] == priority
+
+
+def test_incident_rule_floor_uses_hinglish_cues():
+    from backend.app.api.v1.incidents import rule_priority
+    assert rule_priority("Bachao!", "Ek aadmi chaku leke mera peecha kar raha hai", "hazard") == "P1_CRITICAL"
+    # The floor is only raised: an English report keeps its existing rule result
+    assert rule_priority("Streetlight broken", "Lane 4 is dark", "hazard") == "P3_MODERATE"

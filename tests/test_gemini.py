@@ -70,16 +70,14 @@ def test_gemini_embedding_dimensions():
 
 
 @needs_gemini
-def test_gemini_understands_hinglish_sos_the_rules_miss():
+def test_gemini_understands_hinglish_medical_emergency():
     text = "Papa gir gaye hain aur saans nahi le pa rahe, B-204 jaldi aao"
-    rules_only = triage_orchestrator.run_incident_assistance_workflow(text, use_gemini=False)
     out = triage_orchestrator.run_incident_assistance_workflow(text)
     assert out["ai_engine"].startswith("gemini:"), out["gemini_error"]
     assert out["suggested_priority"] == "P1_CRITICAL" and out["escalated"] is True
     assert out["parsed_category"] == "medical"
     assert out["immediate_safety_checklist"][0].startswith("Call 112")
     assert out["gemini"]["detected_language"] and out["gemini"]["responder_briefing"]
-    assert rules_only["suggested_priority"] != "P1_CRITICAL"  # the keywords alone under-rate this report
 
 
 @needs_gemini

@@ -25,24 +25,43 @@ from backend.app.core.config import settings
 logger = logging.getLogger("neighbourhood_safety.triage")
 
 # Keyword rules are matched on whole words / phrases (see _mentions), in priority order.
+# Hindi/Hinglish cues (romanised, common spellings) mirror the web app's offline fallback
+# (src/web-app/src/services/synthetic.ts). They only ever ADD matches, so English results are unchanged.
+# Whole-word matching keeps short cues safe: "aag" does not match "aage" (ahead), "beta" not "betaab".
+HINGLISH_SOS = ("bachao", "bachaao", "bachaw", "chaku", "chaaku", "chakku", "chakoo", "chhuri", "chhura",
+                "bandook", "banduk", "peecha kar", "peechha kar", "pichha kar", "picha kar", "peecha karta",
+                "maar raha", "maar rahe", "maar rahi", "maar diya", "agwa")
+HINGLISH_MEDICAL = ("saans nahi", "sans nahi", "saans nahin", "behosh", "hosh nahi", "khoon", "khun",
+                    "dil ka daura", "gir gaye", "gir gayi", "gir gaya", "gir gai")
+HINGLISH_CHILD = ("beti", "beta", "bachcha", "bachche", "bachchi", "baccha", "bacche", "bacchi")
+HINGLISH_ELDER = ("dadi", "dada", "nani", "nana", "dadaji", "dadiji", "naniji", "nanaji", "buzurg")
+HINGLISH_SUSPICIOUS = ("ghoom raha", "ghoom rahe", "ched raha", "chhed raha", "ched rahe", "chhed rahe")
+HINGLISH_LIFE_THREAT = HINGLISH_SOS + ("aag", "dhuan", "dhuaan", "saans nahi", "sans nahi", "saans nahin",
+                                       "behosh", "hosh nahi", "dil ka daura", "bahut khoon", "khoon beh")
+HINGLISH_ELDER_RISK = ("gir gaye", "gir gayi", "gir gaya", "gir gai", "nahi utha", "nahi uth", "jawab nahi",
+                       "lapata", "kho gaye", "kho gayi", "kho gaya", "akele")
+HINGLISH_INTRUSION = HINGLISH_SUSPICIOUS
+
 CATEGORY_KEYWORDS = (
     ("sos", ("sos", "help me", "attack", "attacked", "attacking", "threatening", "danger", "stalk", "stalking", "stalker", "emergency",
-             "assault", "assaulted", "kidnap", "following me")),
+             "assault", "assaulted", "kidnap", "following me") + HINGLISH_SOS),
     ("medical", ("heart attack", "chest pain", "breathing", "breathe", "unconscious", "bleeding", "blood",
-                 "doctor", "ambulance", "fell", "fall", "fallen", "injury", "injured", "fainted", "seizure", "stroke")),
+                 "doctor", "ambulance", "fell", "fall", "fallen", "injury", "injured", "fainted", "seizure", "stroke")
+     + HINGLISH_MEDICAL),
     ("child_alert", ("child", "children", "kid", "kids", "school", "son", "daughter", "school bus",
-                     "missing child", "boy", "girl")),
+                     "missing child", "boy", "girl") + HINGLISH_CHILD),
     ("elder_welfare", ("elder", "elderly", "senior", "grandfather", "grandmother", "grandpa", "grandma",
-                       "old man", "old woman", "medicine", "medicines", "wellness")),
+                       "old man", "old woman", "medicine", "medicines", "wellness") + HINGLISH_ELDER),
     ("suspicious_activity", ("prowler", "masked", "mask", "loiter", "loitering", "suspicious", "theft",
-                             "stolen", "break-in", "burglar", "burglary", "trespass", "trespassing")),
+                             "stolen", "break-in", "burglar", "burglary", "trespass", "trespassing")
+     + HINGLISH_SUSPICIOUS),
 )
 LIFE_THREAT_WORDS = ("weapon", "knife", "gun", "bleeding heavily", "severe bleeding", "fire", "smoke",
-                     "attack", "attacked", "attacking", "not breathing", "unconscious")
+                     "attack", "attacked", "attacking", "not breathing", "unconscious") + HINGLISH_LIFE_THREAT
 ELDER_RISK_WORDS = ("not answering", "not answered", "hasn't answered", "has not answered", "no answer",
                     "not picking up", "not responding", "unresponsive", "no response", "no reply",
-                    "missed", "fell", "fall", "collapsed", "confused", "wandered", "missing")
-INTRUSION_WORDS = ("break-in", "breaking in", "forced entry", "forced", "stalking", "masked")
+                    "missed", "fell", "fall", "collapsed", "confused", "wandered", "missing") + HINGLISH_ELDER_RISK
+INTRUSION_WORDS = ("break-in", "breaking in", "forced entry", "forced", "stalking", "masked") + HINGLISH_INTRUSION
 TIME_WORDS = ("now", "just", "minutes", "minute", "hour", "hours", "pm", "am", "today", "tonight",
               "yesterday", "morning", "evening", "since")
 
