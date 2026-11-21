@@ -28,7 +28,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-sm text-slate-500">
-        Verifying authorization...
+        Loading…
       </div>
     );
   }
@@ -45,8 +45,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
 };
 
 export const AppContent: React.FC = () => {
+  const { user } = useAuth();
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <div className={`min-h-screen flex flex-col bg-canvas text-slate-900 ${user ? 'has-tabbar' : ''}`}>
       <Navbar />
       <main className="flex-1">
         <Routes>

@@ -33,20 +33,20 @@ export const AndroidDownloadSection: React.FC<AndroidDownloadSectionProps> = ({ 
   }, [configuredUrl]);
 
   return (
-    <section id="download-android-app" className={`bg-gradient-to-br from-slate-900 via-slate-850 to-teal-950 text-white rounded-2xl p-8 border border-slate-700 shadow-xl ${compact ? 'my-4' : 'my-12'}`}>
+    <section id="download-android-app" className={`bg-gradient-to-br from-slate-900 via-slate-850 to-brand-950 text-white rounded-2xl p-8 border border-slate-700 shadow-xl ${compact ? 'my-4' : 'my-12'}`}>
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           
           {/* Left Info Column */}
           <div className="flex-1 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold tracking-wide uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30 text-xs font-semibold tracking-wide uppercase">
               <Smartphone className="w-3.5 h-3.5" />
               Native Android Companion
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-teal-600/30 border border-teal-500/50 p-2 flex items-center justify-center shadow-lg shadow-teal-500/10">
-                <ShieldCheck className="w-10 h-10 text-teal-400" />
+              <div className="w-16 h-16 rounded-2xl bg-brand-600/30 border border-brand-500/50 p-2 flex items-center justify-center shadow-lg shadow-brand-500/10">
+                <ShieldCheck className="w-10 h-10 text-brand-400" />
               </div>
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
@@ -79,7 +79,7 @@ export const AndroidDownloadSection: React.FC<AndroidDownloadSectionProps> = ({ 
                 <a
                   href={configuredUrl}
                   download="neighbourhood-safety.apk"
-                  className="inline-flex items-center gap-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-semibold px-6 py-3 rounded-xl shadow-lg shadow-teal-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center gap-2.5 bg-brand-500 hover:bg-brand-400 text-slate-950 font-semibold px-6 py-3 rounded-xl shadow-lg shadow-brand-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <Download className="w-5 h-5" />
                   Download APK (Direct)
@@ -95,7 +95,7 @@ export const AndroidDownloadSection: React.FC<AndroidDownloadSectionProps> = ({ 
                 onClick={() => setShowInstructions(!showInstructions)}
                 className="inline-flex items-center gap-2 text-slate-300 hover:text-white text-sm bg-slate-800/60 hover:bg-slate-800 px-4 py-3 rounded-xl border border-slate-700 transition"
               >
-                <HelpCircle className="w-4 h-4 text-teal-400" />
+                <HelpCircle className="w-4 h-4 text-brand-400" />
                 {showInstructions ? 'Hide Instructions' : 'Installation Guide'}
               </button>
             </div>
@@ -136,7 +136,7 @@ export const AndroidDownloadSection: React.FC<AndroidDownloadSectionProps> = ({ 
               </svg>
             </div>
             <div className="flex items-center gap-1.5 text-xs font-medium text-slate-300">
-              <QrCode className="w-3.5 h-3.5 text-teal-400" />
+              <QrCode className="w-3.5 h-3.5 text-brand-400" />
               Scan with Android Camera
             </div>
             <span className="text-[11px] text-slate-400 mt-1">Direct device download link</span>
@@ -149,27 +149,27 @@ export const AndroidDownloadSection: React.FC<AndroidDownloadSectionProps> = ({ 
           <div className="mt-6 pt-6 border-t border-slate-700/80 grid md:grid-cols-2 gap-4 text-xs text-slate-300 animate-fadeIn">
             <div className="space-y-2 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
               <h3 className="font-semibold text-white flex items-center gap-1.5 text-sm">
-                <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                <CheckCircle2 className="w-4 h-4 text-brand-400" />
                 Installing APK on Physical Android Device
               </h3>
               <ol className="list-decimal list-inside space-y-1.5 text-slate-300">
                 <li>Download the APK file to your Android phone or transfer via USB.</li>
-                <li>Tap the downloaded <code className="text-teal-300 bg-slate-900 px-1 py-0.5 rounded">.apk</code> file in your Notifications or Files app.</li>
+                <li>Tap the downloaded <code className="text-brand-300 bg-slate-900 px-1 py-0.5 rounded">.apk</code> file in your Notifications or Files app.</li>
                 <li>When prompted, enable <strong>"Install unknown apps"</strong> for your browser/file manager.</li>
                 <li>Tap <strong>Install</strong>. Launch <strong>Neighbourhood Safety</strong>.</li>
-                <li>In App Settings, set the API Base URL to your backend computer's LAN IP (e.g., <code className="text-teal-300 bg-slate-900 px-1 py-0.5 rounded">http://192.168.1.X:8000</code>).</li>
+                <li>In App Settings, set the API Base URL to your backend computer's LAN IP (e.g., <code className="text-brand-300 bg-slate-900 px-1 py-0.5 rounded">http://192.168.1.X:8000</code>).</li>
               </ol>
             </div>
 
             <div className="space-y-2 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
               <h3 className="font-semibold text-white flex items-center gap-1.5 text-sm">
-                <Terminal className="w-4 h-4 text-teal-400" />
+                <Terminal className="w-4 h-4 text-brand-400" />
                 Building via Gradle / Android Studio
               </h3>
               <p className="text-slate-300">
                 To build the debug or signed release APK directly from the source repository:
               </p>
-              <pre className="bg-slate-950 p-2.5 rounded-lg text-teal-300 overflow-x-auto text-[11px] font-mono border border-slate-800">
+              <pre className="bg-slate-950 p-2.5 rounded-lg text-brand-300 overflow-x-auto text-[11px] font-mono border border-slate-800">
 # Build Debug APK
 gradle :app:assembleDebug
 
@@ -177,7 +177,7 @@ gradle :app:assembleDebug
 app/build/outputs/apk/debug/app-debug.apk
               </pre>
               <p className="text-slate-400 text-[11px]">
-                Emulator default host address: <code className="text-teal-300">http://10.0.2.2:8000</code>
+                Emulator default host address: <code className="text-brand-300">http://10.0.2.2:8000</code>
               </p>
             </div>
           </div>

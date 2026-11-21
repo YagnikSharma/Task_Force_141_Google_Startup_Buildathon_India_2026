@@ -70,7 +70,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
         </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition text-xs"
+          className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition text-xs"
         >
           <Plus className="w-4 h-4" /> Report New Hazard
         </button>
@@ -81,7 +81,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs font-semibold text-slate-500 block">Total Incidents</span>
           <span className="text-3xl font-extrabold text-slate-900 mt-1 block">{insights?.total_incidents || 0}</span>
-          <span className="text-[11px] text-teal-600 font-medium">Audited & Logged</span>
+          <span className="text-[11px] text-brand-600 font-medium">Audited & Logged</span>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -92,7 +92,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs font-semibold text-slate-500 block">Avg Response Time</span>
-          <span className="text-3xl font-extrabold text-teal-600 mt-1 block">
+          <span className="text-3xl font-extrabold text-brand-600 mt-1 block">
             {insights?.average_response_time_minutes != null ? `${insights.average_response_time_minutes.toFixed(1)}m` : '—'}
           </span>
           <span className="text-[11px] text-slate-500 font-medium">Measured: report to acknowledgement</span>
@@ -110,12 +110,12 @@ export const CommunitySafetyDashboard: React.FC = () => {
       </div>
 
       {/* AI Community Advisory Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-teal-950 text-white rounded-3xl p-6 border border-slate-800 shadow-md flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-teal-600/30 border border-teal-500/40 p-2 flex items-center justify-center shrink-0">
-          <Sparkles className="w-6 h-6 text-teal-400" />
+      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-brand-950 text-white rounded-3xl p-6 border border-slate-800 shadow-md flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-brand-600/30 border border-brand-500/40 p-2 flex items-center justify-center shrink-0">
+          <Sparkles className="w-6 h-6 text-brand-400" />
         </div>
         <div>
-          <span className="text-xs font-bold text-teal-400 uppercase tracking-wider block">
+          <span className="text-xs font-bold text-brand-400 uppercase tracking-wider block">
             Community Intelligence Synthesis
           </span>
           <p className="text-sm text-slate-200 mt-1 leading-relaxed">
@@ -133,7 +133,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                 <h2 className="text-lg font-bold text-slate-900">Response Times by Priority</h2>
                 <p className="text-xs text-slate-500">Last {insights.window_days} days · report to first acknowledgement</p>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 border border-teal-200 px-2 py-1 rounded-lg">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 border border-brand-200 px-2 py-1 rounded-lg">
                 {insights.analytics_engine}
               </span>
             </div>
@@ -258,7 +258,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                   placeholder="e.g. Broken streetlight on 4th Cross"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -267,7 +267,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                 <select
                   value={hazardType}
                   onChange={(e) => setHazardType(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none bg-white"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none bg-white"
                 >
                   <option value="dark_street">Dark / Malfunctioning Streetlights</option>
                   <option value="road_block">Road Block / Construction Pit</option>
@@ -282,7 +282,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                 <select
                   value={severity}
                   onChange={(e) => setSeverity(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none bg-white"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none bg-white"
                 >
                   <option value="low">Low (Minor inconvenience)</option>
                   <option value="medium">Medium (Pedestrian caution required)</option>
@@ -298,7 +298,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                   placeholder="e.g. Corner of 7th Cross and Park Feeder"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -313,7 +313,7 @@ export const CommunitySafetyDashboard: React.FC = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
+                  className="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
                 >
                   {saving ? 'Reporting...' : 'Publish Hazard Report'}
                 </button>

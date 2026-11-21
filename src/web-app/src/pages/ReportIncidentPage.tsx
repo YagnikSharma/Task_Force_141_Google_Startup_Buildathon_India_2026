@@ -125,7 +125,7 @@ export const ReportIncidentPage: React.FC = () => {
             <select
               value={incidentType}
               onChange={(e) => setIncidentType(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none bg-white"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none bg-white"
             >
               <option value="hazard">Infrastructure Hazard (Broken light, blocked road, open pit)</option>
               <option value="suspicious_activity">Suspicious Activity (Prowler, unverified loitering)</option>
@@ -143,7 +143,7 @@ export const ReportIncidentPage: React.FC = () => {
               placeholder="e.g. Broken streetlamp creating dark zone on Lane 4"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
             />
           </div>
 
@@ -154,9 +154,9 @@ export const ReportIncidentPage: React.FC = () => {
                 type="button"
                 onClick={handleRunAiTriage}
                 disabled={analyzing || !description}
-                className="text-xs text-teal-700 hover:text-teal-800 font-semibold flex items-center gap-1.5 disabled:opacity-40"
+                className="text-xs text-brand-700 hover:text-brand-800 font-semibold flex items-center gap-1.5 disabled:opacity-40"
               >
-                {analyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-teal-600" />}
+                {analyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-brand-600" />}
                 Analyze with AI Triage
               </button>
             </div>
@@ -166,7 +166,7 @@ export const ReportIncidentPage: React.FC = () => {
               placeholder="Describe what occurred, any hazards, landmarks, or vehicle details..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none resize-none"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none resize-none"
             />
           </div>
 
@@ -191,7 +191,7 @@ export const ReportIncidentPage: React.FC = () => {
                 placeholder={gps ? 'Landmark (optional), e.g. near Gate 2, opposite the chemist' : 'Landmark (required without GPS), e.g. Opposite Gate 2'}
                 value={locationAddress}
                 onChange={(e) => setLocationAddress(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
               />
             </div>
           </div>
@@ -207,7 +207,7 @@ export const ReportIncidentPage: React.FC = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 px-4 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {submitting ? 'Registering Incident...' : 'Submit Incident to Responders'}
             <ArrowRight className="w-4 h-4" />
@@ -219,7 +219,7 @@ export const ReportIncidentPage: React.FC = () => {
         <div className="space-y-4">
           <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 shadow-md space-y-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-teal-400" />
+              <Sparkles className="w-5 h-5 text-brand-400" />
               <h3 className="font-bold text-sm">AI Triage · Gemini</h3>
             </div>
 
@@ -277,11 +277,11 @@ export const ReportIncidentPage: React.FC = () => {
 
                 {aiResult.immediate_safety_checklist.length > 0 && (
                   <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                    <span className="text-teal-400 font-semibold block mb-1">Immediate Safety Actions:</span>
+                    <span className="text-brand-400 font-semibold block mb-1">Immediate Safety Actions:</span>
                     <ul className="space-y-1 text-slate-300 text-[11px]">
                       {aiResult.immediate_safety_checklist.map((a, i) => (
                         <li key={i} className="flex items-start gap-1.5">
-                          <CheckCircle2 className="w-3 h-3 text-teal-400 shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-3 h-3 text-brand-400 shrink-0 mt-0.5" />
                           <span>{a}</span>
                         </li>
                       ))}
@@ -291,7 +291,7 @@ export const ReportIncidentPage: React.FC = () => {
 
                 {aiResult.retrieved_civic_protocols.length > 0 && (
                   <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-                    <span className="text-teal-400 font-semibold block mb-1 flex items-center gap-1">
+                    <span className="text-brand-400 font-semibold block mb-1 flex items-center gap-1">
                       <BookOpen className="w-3 h-3" />
                       Retrieved Municipal Protocol:
                     </span>

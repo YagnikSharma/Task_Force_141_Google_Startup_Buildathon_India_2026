@@ -74,7 +74,7 @@ export const TrustedContactsPage: React.FC = () => {
         </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition text-xs"
+          className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition text-xs"
         >
           <Plus className="w-4 h-4" /> Add Trusted Contact
         </button>
@@ -96,7 +96,7 @@ export const TrustedContactsPage: React.FC = () => {
               <div className="space-y-2">
                 <div>
                   <h3 className="font-bold text-slate-900 text-base">{c.name}</h3>
-                  <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                  <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">
                     {c.relationship}
                   </span>
                 </div>
@@ -145,7 +145,7 @@ export const TrustedContactsPage: React.FC = () => {
                   placeholder="e.g. Rohit Sharma"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -157,7 +157,7 @@ export const TrustedContactsPage: React.FC = () => {
                   placeholder="e.g. Brother, Parent, Neighbor"
                   value={relationship}
                   onChange={(e) => setRelationship(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -169,7 +169,7 @@ export const TrustedContactsPage: React.FC = () => {
                   placeholder="+91 98765 00000"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -180,7 +180,7 @@ export const TrustedContactsPage: React.FC = () => {
                   placeholder="contact@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -195,7 +195,7 @@ export const TrustedContactsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
+                  className="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : 'Add Contact'}
                 </button>

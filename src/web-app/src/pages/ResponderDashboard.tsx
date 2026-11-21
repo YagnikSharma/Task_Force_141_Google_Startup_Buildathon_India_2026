@@ -74,7 +74,7 @@ export const ResponderDashboard: React.FC = () => {
       {/* Top Status Bar */}
       <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-semibold mb-2 border border-teal-500/30">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-semibold mb-2 border border-brand-500/30">
             <Activity className="w-3.5 h-3.5" />
             Verified Responder Command Center
           </div>
@@ -132,7 +132,7 @@ export const ResponderDashboard: React.FC = () => {
 
           {incidents.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-3">
-              <CheckCircle2 className="w-12 h-12 text-teal-600 mx-auto" />
+              <CheckCircle2 className="w-12 h-12 text-brand-600 mx-auto" />
               <h3 className="text-base font-semibold text-slate-800">Dispatch Queue Clear</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 No open emergency incidents in your sector. Stay on-duty for automated incoming alerts.
@@ -186,7 +186,7 @@ export const ResponderDashboard: React.FC = () => {
                         <button
                           onClick={() => handleAcknowledge(inc.id)}
                           disabled={actionInProgress === inc.id}
-                          className="bg-teal-600 hover:bg-teal-500 text-white font-bold px-3.5 py-1.5 rounded-xl shadow-sm transition text-xs flex items-center gap-1"
+                          className="bg-brand-600 hover:bg-brand-500 text-white font-bold px-3.5 py-1.5 rounded-xl shadow-sm transition text-xs flex items-center gap-1"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Claim & Acknowledge
@@ -242,7 +242,7 @@ export const ResponderDashboard: React.FC = () => {
           
           <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-              <Pill className="w-4 h-4 text-teal-600" />
+              <Pill className="w-4 h-4 text-brand-600" />
               Community Welfare Requests
             </h3>
 
@@ -268,7 +268,7 @@ export const ResponderDashboard: React.FC = () => {
 
           {/* Responder Protocol Quick Reference */}
           <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 space-y-3 text-xs">
-            <h4 className="font-bold text-teal-400 text-sm">Responder Operational SOP</h4>
+            <h4 className="font-bold text-brand-400 text-sm">Responder Operational SOP</h4>
             <ul className="space-y-2 text-slate-300">
               <li>1. Acknowledge high-priority alerts within <strong>120 seconds</strong>.</li>
               <li>2. Verify medical notes before treating allergy/asthma residents.</li>

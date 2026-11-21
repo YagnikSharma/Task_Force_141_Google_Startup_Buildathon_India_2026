@@ -79,7 +79,7 @@ export const ChildSafetyPage: React.FC = () => {
         </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition text-xs"
+          className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition text-xs"
         >
           <Plus className="w-4 h-4" /> Start New Journey
         </button>
@@ -152,7 +152,7 @@ export const ChildSafetyPage: React.FC = () => {
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <span className="text-slate-400 block">Corridor Status</span>
-                  <span className="font-semibold text-teal-700">Patrols Alerted</span>
+                  <span className="font-semibold text-brand-700">Patrols Alerted</span>
                 </div>
               </div>
 
@@ -180,7 +180,7 @@ export const ChildSafetyPage: React.FC = () => {
                   placeholder="e.g. Aarav Sen (Age 10)"
                   value={childName}
                   onChange={(e) => setChildName(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -192,7 +192,7 @@ export const ChildSafetyPage: React.FC = () => {
                   placeholder="e.g. St. Xavier's Academy, Sector 2"
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -204,7 +204,7 @@ export const ChildSafetyPage: React.FC = () => {
                   placeholder="e.g. House 18, Sunset Boulevard, Sector 4"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -217,7 +217,7 @@ export const ChildSafetyPage: React.FC = () => {
                   max={180}
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -228,7 +228,7 @@ export const ChildSafetyPage: React.FC = () => {
                   placeholder="e.g. School Bus #14 with driver Mohan"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
@@ -243,7 +243,7 @@ export const ChildSafetyPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
+                  className="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
                 >
                   {saving ? 'Creating...' : 'Start Monitoring'}
                 </button>

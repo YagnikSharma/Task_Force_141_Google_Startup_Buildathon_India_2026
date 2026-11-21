@@ -1,221 +1,222 @@
 import Mark from './Mark';
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShieldAlert, Shield, LogOut, Menu, X, Smartphone, Activity, UserCheck } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Activity, BarChart3, Baby, HeartHandshake, Home, LogOut, Map, Menu, Route, ShieldAlert, ShieldCheck, Users, X, TriangleAlert,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+
+type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }> };
+
+/** Navigation per role. The first items also become the phone tab bar. */
+function itemsFor(role?: string): Item[] {
+  if (role === 'responder') {
+    return [
+      { to: '/responder', label: 'Queue', icon: Activity },
+      { to: '/map', label: 'Live map', icon: Map },
+      { to: '/community', label: 'Hazards', icon: TriangleAlert },
+      { to: '/safe-route', label: 'Safe Route', icon: Route },
+    ];
+  }
+  if (role === 'admin') {
+    return [
+      { to: '/admin', label: 'Admin', icon: ShieldCheck },
+      { to: '/community', label: 'Insights', icon: BarChart3 },
+      { to: '/map', label: 'Live map', icon: Map },
+      { to: '/safe-route', label: 'Safe Route', icon: Route },
+    ];
+  }
+  return [
+    { to: '/dashboard', label: 'Home', icon: Home },
+    { to: '/map', label: 'Live map', icon: Map },
+    { to: '/safe-route', label: 'Safe Route', icon: Route },
+    { to: '/contacts', label: 'Contacts', icon: Users },
+    { to: '/child-safety', label: 'Child commute', icon: Baby },
+    { to: '/elder-care', label: 'Elder care', icon: HeartHandshake },
+    { to: '/community', label: 'Community', icon: BarChart3 },
+  ];
+}
+
+function initials(name?: string) {
+  return (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+}
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const items = itemsFor(user?.role);
+  const isResident = !!user && user.role !== 'responder' && user.role !== 'admin';
+
+  useEffect(() => setSheetOpen(false), [location.pathname]);
 
   const handleLogout = () => {
     logout();
     navigate('/');
-    setMobileMenuOpen(false);
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const linkCls = ({ isActive }: { isActive: boolean }) =>
+    `px-3 py-2 rounded-full text-sm font-medium transition ${
+      isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+    }`;
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 text-slate-100 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        
-        {/* Brand */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <Mark className="w-9 h-9 transition group-hover:scale-105" />
-          <div className="leading-none">
-            <span className="block text-lg font-semibold tracking-tight text-white">nsin</span>
-            <span className="block text-[10px] uppercase tracking-[0.16em] text-slate-400">safety network</span>
+    <>
+      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+          <Link to={user ? items[0].to : '/'} className="flex items-center gap-2.5 shrink-0">
+            <Mark className="w-9 h-9" />
+            <div className="leading-none">
+              <span className="block font-display text-[19px] font-bold tracking-tight text-slate-900">nsin</span>
+              <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500">safety network</span>
+            </div>
+          </Link>
+
+          {/* Desktop links */}
+          <nav className="hidden lg:flex items-center gap-0.5">
+            {user ? (
+              <>
+                {items.slice(0, isResident ? 6 : 4).map((it) => (
+                  <NavLink key={it.to} to={it.to} className={linkCls}>{it.label}</NavLink>
+                ))}
+              </>
+            ) : (
+              <>
+                <a href="#how-it-works" className="px-3 py-2 rounded-full text-sm font-medium text-slate-600 hover:bg-slate-100">How it works</a>
+                <a href="#features" className="px-3 py-2 rounded-full text-sm font-medium text-slate-600 hover:bg-slate-100">Features</a>
+                <a href="#privacy" className="px-3 py-2 rounded-full text-sm font-medium text-slate-600 hover:bg-slate-100">Privacy</a>
+                <NavLink to="/safe-route" className={linkCls}>Safe Route</NavLink>
+                <NavLink to="/map" className={linkCls}>Live map</NavLink>
+              </>
+            )}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            {user ? (
+              <>
+                {isResident && (
+                  <Link to="/sos" className="hidden lg:inline-flex btn-danger !py-2 !px-4">
+                    <ShieldAlert className="w-4 h-4" /> SOS
+                  </Link>
+                )}
+                <button
+                  onClick={() => setSheetOpen(true)}
+                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-white pl-1 pr-2 py-1 hover:bg-slate-50 transition"
+                  aria-label="Open menu"
+                >
+                  <span className="grid place-items-center w-8 h-8 rounded-full bg-brand-500 text-white text-xs font-bold">{initials(user.full_name)}</span>
+                  <span className="hidden sm:block text-left leading-tight pr-1">
+                    <span className="block text-[13px] font-semibold text-slate-800 max-w-[160px] truncate">{user.full_name}</span>
+                    <span className="block text-[11px] capitalize text-slate-500">{user.role}</span>
+                  </span>
+                  <Menu className="w-4 h-4 text-slate-500" />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/auth?mode=login" className="btn-ghost !px-4 !py-2">Sign in</Link>
+                <Link to="/auth?mode=register" className="btn-primary !px-4 !py-2 hidden sm:inline-flex">Join the network</Link>
+              </>
+            )}
           </div>
-        </Link>
+        </div>
+      </header>
 
-        {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">
-          {user ? (
-            <>
-              {user.role === 'resident' && (
-                <>
-                  <Link 
-                    to="/dashboard" 
-                    className={`px-3 py-1.5 rounded-lg transition ${isActive('/dashboard') ? 'bg-slate-800 text-teal-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    Resident Home
-                  </Link>
-                  <Link 
-                    to="/sos" 
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${isActive('/sos') ? 'bg-red-950/80 text-red-400 font-semibold' : 'text-red-400 hover:bg-red-950/40'}`}
-                  >
-                    <ShieldAlert className="w-4 h-4" />
-                    SOS Distress
-                  </Link>
-                  <Link 
-                    to="/contacts" 
-                    className={`px-3 py-1.5 rounded-lg transition ${isActive('/contacts') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    Contacts
-                  </Link>
-                  <Link 
-                    to="/child-safety" 
-                    className={`px-3 py-1.5 rounded-lg transition ${isActive('/child-safety') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    Child Safe Transit
-                  </Link>
-                  <Link 
-                    to="/elder-care" 
-                    className={`px-3 py-1.5 rounded-lg transition ${isActive('/elder-care') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    Elder Care
-                  </Link>
-                </>
-              )}
-
-              {user.role === 'responder' && (
-                <>
-                  <Link 
-                    to="/responder" 
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${isActive('/responder') ? 'bg-slate-800 text-teal-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    <Activity className="w-4 h-4 text-teal-400" />
-                    Responder Command
-                  </Link>
-                  <Link 
-                    to="/community" 
-                    className={`px-3 py-1.5 rounded-lg transition ${isActive('/community') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    Civic Hazards
-                  </Link>
-                </>
-              )}
-
-              {user.role === 'admin' && (
-                <>
-                  <Link 
-                    to="/admin" 
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${isActive('/admin') ? 'bg-slate-800 text-teal-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    <UserCheck className="w-4 h-4 text-teal-400" />
-                    Admin Oversight
-                  </Link>
-                  <Link 
-                    to="/community" 
-                    className={`px-3 py-1.5 rounded-lg transition ${isActive('/community') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-                  >
-                    Community Insights
-                  </Link>
-                </>
-              )}
-
-              <Link 
-                to="/map" 
-                className={`px-3 py-1.5 rounded-lg transition ${isActive('/map') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-              >
-                Live Map
-              </Link>
-              <Link
-                to="/safe-route"
-                className={`px-3 py-1.5 rounded-lg transition ${isActive('/safe-route') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
-              >
-                Safe Route
-              </Link>
-            </>
-          ) : (
-            <>
-              <a href="#how-it-works" className="px-3 py-1.5 text-slate-300 hover:text-white transition">How It Works</a>
-              <a href="#safety-pillars" className="px-3 py-1.5 text-slate-300 hover:text-white transition">Safety Pillars</a>
-              <a href="#download-android-app" className="px-3 py-1.5 text-teal-300 hover:text-teal-200 flex items-center gap-1.5 transition">
-                <Smartphone className="w-4 h-4" />
-                Android App
-              </a>
-              <a href="#helplines" className="px-3 py-1.5 text-slate-300 hover:text-white transition">Emergency Helplines</a>
-            </>
-          )}
-        </nav>
-
-        {/* User / Auth Actions */}
-        <div className="hidden sm:flex items-center gap-3">
-          {user ? (
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-sm font-semibold text-white block leading-tight">{user.full_name}</span>
-                <span className="text-[11px] uppercase tracking-wider text-teal-400 font-medium">{user.role}</span>
+      {/* Menu sheet (phone + desktop): every page for this role, plus sign out */}
+      {sheetOpen && user && (
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={() => setSheetOpen(false)} />
+          <div className="absolute right-0 top-0 h-full w-[86%] max-w-sm bg-white shadow-2xl flex flex-col animate-fade-up">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <span className="grid place-items-center w-11 h-11 rounded-full bg-brand-500 text-white font-bold">{initials(user.full_name)}</span>
+                <div className="leading-tight">
+                  <div className="font-semibold text-slate-900">{user.full_name}</div>
+                  <div className="text-xs capitalize text-slate-500">{user.role}</div>
+                </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition border border-slate-700/60"
-                title="Sign Out"
-              >
-                <LogOut className="w-4 h-4" />
+              <button onClick={() => setSheetOpen(false)} className="p-2 rounded-full hover:bg-slate-100" aria-label="Close menu">
+                <X className="w-5 h-5 text-slate-600" />
               </button>
             </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                to="/auth?mode=login"
-                className="text-sm font-medium text-slate-300 hover:text-white px-3 py-2 rounded-xl hover:bg-slate-800 transition"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/auth?mode=register"
-                className="text-sm font-semibold bg-teal-500 hover:bg-teal-400 text-slate-950 px-4 py-2 rounded-xl shadow-md transition"
-              >
-                Join Network
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile menu trigger */}
-        <div className="flex sm:hidden">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-      </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="sm:hidden bg-slate-900 border-b border-slate-800 px-4 pt-3 pb-6 space-y-3">
-          {user ? (
-            <div className="space-y-2">
-              <div className="pb-2 border-b border-slate-800">
-                <span className="text-sm font-bold text-white block">{user.full_name}</span>
-                <span className="text-xs text-teal-400 uppercase">{user.role}</span>
-              </div>
-              {user.role === 'resident' && (
-                <>
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Resident Dashboard</Link>
-                  <Link to="/sos" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-red-400 font-semibold">🚨 Trigger Emergency SOS</Link>
-                  <Link to="/contacts" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Trusted Contacts</Link>
-                  <Link to="/child-safety" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Child Safe Transit</Link>
-                  <Link to="/elder-care" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Elder Care</Link>
-                </>
+            <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+              {isResident && (
+                <Link to="/sos" className="flex items-center gap-3 rounded-xl px-3 py-3 bg-red-50 text-red-700 font-semibold">
+                  <ShieldAlert className="w-5 h-5" /> Send SOS
+                </Link>
               )}
-              {user.role === 'responder' && (
-                <Link to="/responder" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-teal-400 font-semibold">Responder Command Center</Link>
-              )}
-              {user.role === 'admin' && (
-                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-teal-400 font-semibold">Admin Oversight</Link>
-              )}
-              <Link to="/map" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Live Map</Link>
-              <Link to="/safe-route" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Safe Route (Women in Transit)</Link>
-              <Link to="/community" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-200">Community Insights & Hazards</Link>
-              <button onClick={handleLogout} className="w-full text-left py-2 text-red-400 font-medium">Sign Out</button>
+              {items.map((it) => (
+                <NavLink
+                  key={it.to}
+                  to={it.to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium transition ${isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-700 hover:bg-slate-50'}`
+                  }
+                >
+                  <it.icon className="w-5 h-5" /> {it.label}
+                </NavLink>
+              ))}
+            </nav>
+            <div className="p-4 border-t border-slate-100 space-y-3">
+              <a href="tel:112" className="flex items-center justify-center gap-2 rounded-xl border border-red-200 py-3 text-sm font-semibold text-red-700">
+                Call 112 (national emergency)
+              </a>
+              <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium text-slate-600 hover:bg-slate-50">
+                <LogOut className="w-4 h-4" /> Sign out
+              </button>
             </div>
-          ) : (
-            <div className="space-y-3 pt-2">
-              <Link to="/auth?mode=login" onClick={() => setMobileMenuOpen(false)} className="block text-center py-2 text-slate-300 bg-slate-800 rounded-xl">Sign In</Link>
-              <Link to="/auth?mode=register" onClick={() => setMobileMenuOpen(false)} className="block text-center py-2 bg-teal-500 text-slate-950 font-semibold rounded-xl">Join Network</Link>
-            </div>
-          )}
+          </div>
         </div>
       )}
-    </header>
+
+      {/* Phone tab bar: the four main pages, with SOS in the middle for residents */}
+      {user && <TabBar items={items.slice(0, 4)} sos={isResident} onMore={() => setSheetOpen(true)} />}
+    </>
+  );
+};
+
+const TabBar: React.FC<{ items: Item[]; sos: boolean; onMore: () => void }> = ({ items, sos, onMore }) => {
+  const tab = ({ isActive }: { isActive: boolean }) =>
+    `flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 text-[11px] font-medium transition ${isActive ? 'text-brand-600' : 'text-slate-500'}`;
+  const left = sos ? items.slice(0, 2) : items.slice(0, 2);
+  const right = sos ? items.slice(2, 3) : items.slice(2, 4);
+  return (
+    <nav
+      className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-xl"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      aria-label="Main"
+    >
+      <div className="relative flex items-end h-[64px] px-1">
+        {left.map((it) => (
+          <NavLink key={it.to} to={it.to} className={tab}>
+            <it.icon className="w-[22px] h-[22px]" />
+            {it.label}
+          </NavLink>
+        ))}
+        {sos && (
+          <div className="flex-1 flex justify-center">
+            <Link
+              to="/sos"
+              className="relative -mt-7 mb-1.5 grid place-items-center w-[64px] h-[64px] rounded-full bg-red-600 text-white shadow-sos ring-4 ring-white active:scale-95 transition"
+              aria-label="Send SOS"
+            >
+              <span className="absolute inset-0 rounded-full bg-red-500 animate-sos-ring" aria-hidden="true" />
+              <span className="relative text-[13px] font-extrabold tracking-wide">SOS</span>
+            </Link>
+          </div>
+        )}
+        {right.map((it) => (
+          <NavLink key={it.to} to={it.to} className={tab}>
+            <it.icon className="w-[22px] h-[22px]" />
+            {it.label}
+          </NavLink>
+        ))}
+        <button onClick={onMore} className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 text-[11px] font-medium text-slate-500">
+          <Menu className="w-[22px] h-[22px]" />
+          More
+        </button>
+      </div>
+    </nav>
   );
 };

@@ -76,9 +76,9 @@ export const ElderCarePage: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* Header & Quick Daily Checkin */}
-      <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg border border-teal-800/40 space-y-4">
+      <div className="bg-gradient-to-r from-brand-900 via-slate-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg border border-brand-800/40 space-y-4">
         <div>
-          <span className="text-teal-400 text-xs font-semibold uppercase tracking-wider block">
+          <span className="text-brand-400 text-xs font-semibold uppercase tracking-wider block">
             Senior Citizen & Vulnerable Resident Care
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold mt-1">Daily Welfare & Assistance</h1>
@@ -91,7 +91,7 @@ export const ElderCarePage: React.FC = () => {
           <button
             onClick={() => handleDailyCheckIn('good')}
             disabled={checkingIn}
-            className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-5 py-3 rounded-xl shadow-lg transition text-xs"
+            className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-5 py-3 rounded-xl shadow-lg transition text-xs"
           >
             <CheckCircle2 className="w-4 h-4" />
             {checkingIn ? 'Recording...' : 'I Am Safe & Well Today'}
@@ -101,7 +101,7 @@ export const ElderCarePage: React.FC = () => {
             onClick={() => setModalOpen(true)}
             className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-3 rounded-xl border border-slate-700 transition text-xs"
           >
-            <Plus className="w-4 h-4 text-teal-400" />
+            <Plus className="w-4 h-4 text-brand-400" />
             Request Community Assistance
           </button>
         </div>
@@ -113,12 +113,12 @@ export const ElderCarePage: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-teal-600" />
+              <ShoppingBag className="w-4 h-4 text-brand-600" />
               Assistance Requests
             </h2>
             <button
               onClick={() => setModalOpen(true)}
-              className="text-xs font-semibold text-teal-600 hover:text-teal-700"
+              className="text-xs font-semibold text-brand-600 hover:text-brand-700"
             >
               + New Request
             </button>
@@ -134,7 +134,7 @@ export const ElderCarePage: React.FC = () => {
                 <div key={r.id} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-900 capitalize flex items-center gap-1.5">
-                      <Pill className="w-3.5 h-3.5 text-teal-600" />
+                      <Pill className="w-3.5 h-3.5 text-brand-600" />
                       {r.request_type} Assistance
                     </span>
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
@@ -148,7 +148,7 @@ export const ElderCarePage: React.FC = () => {
                   <p className="text-xs text-slate-600">{r.description}</p>
                   <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-100 flex items-center justify-between">
                     <span>Priority: <strong className="text-slate-700 uppercase">{r.urgency}</strong></span>
-                    <span>Responder: <strong className="text-teal-700">{r.assigned_to_name || 'In Queue'}</strong></span>
+                    <span>Responder: <strong className="text-brand-700">{r.assigned_to_name || 'In Queue'}</strong></span>
                   </div>
                 </div>
               ))}
@@ -160,7 +160,7 @@ export const ElderCarePage: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-teal-600" />
+              <Clock className="w-4 h-4 text-brand-600" />
               Check-in History
             </h2>
             <button
@@ -210,7 +210,7 @@ export const ElderCarePage: React.FC = () => {
                 <select
                   value={reqType}
                   onChange={(e) => setReqType(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none bg-white"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none bg-white"
                 >
                   <option value="medicine">Prescription Medicine Delivery</option>
                   <option value="grocery">Essential Groceries & Supplies</option>
@@ -228,7 +228,7 @@ export const ElderCarePage: React.FC = () => {
                   placeholder="e.g. Please pick up Amlodipine 5mg from Apollo Pharmacy."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none resize-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none resize-none"
                 />
               </div>
 
@@ -237,7 +237,7 @@ export const ElderCarePage: React.FC = () => {
                 <select
                   value={urgency}
                   onChange={(e) => setUrgency(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none bg-white"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none bg-white"
                 >
                   <option value="low">Low (Within 24 hours)</option>
                   <option value="medium">Medium (Within 2-4 hours)</option>
@@ -256,7 +256,7 @@ export const ElderCarePage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
+                  className="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50"
                 >
                   {saving ? 'Submitting...' : 'Submit Request'}
                 </button>

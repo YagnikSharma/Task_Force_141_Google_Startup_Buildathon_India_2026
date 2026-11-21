@@ -136,7 +136,7 @@ export const IncidentDetailPage: React.FC = () => {
   if (loading && !incident) {
     return (
       <div className="max-w-4xl mx-auto py-16 text-center text-slate-500 text-sm">
-        <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-teal-600" />
+        <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-brand-600" />
         Loading incident dossier...
       </div>
     );
@@ -147,7 +147,7 @@ export const IncidentDetailPage: React.FC = () => {
       <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
         <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />
         <h2 className="text-xl font-bold text-slate-900">{error || 'Incident Not Found'}</h2>
-        <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-teal-600 font-semibold">
+        <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-brand-600 font-semibold">
           <ArrowLeft className="w-4 h-4" /> Return to Dashboard
         </Link>
       </div>
@@ -227,7 +227,7 @@ export const IncidentDetailPage: React.FC = () => {
           </div>
           <div>
             <span className="text-slate-400 block">Assigned Responder</span>
-            <span className="font-semibold text-teal-700">{incident.assigned_responder_name || 'Awaiting Claim'}</span>
+            <span className="font-semibold text-brand-700">{incident.assigned_responder_name || 'Awaiting Claim'}</span>
           </div>
         </div>
       </div>
@@ -299,7 +299,7 @@ export const IncidentDetailPage: React.FC = () => {
             <button
               onClick={handleAcknowledge}
               disabled={updating}
-              className="bg-teal-600 hover:bg-teal-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-md transition text-xs flex items-center gap-2"
+              className="bg-brand-600 hover:bg-brand-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-md transition text-xs flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               Claim & Acknowledge Incident as {user?.full_name}
@@ -315,7 +315,7 @@ export const IncidentDetailPage: React.FC = () => {
                   <select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value as IncidentStatus)}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white font-medium focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white font-medium focus:ring-2 focus:ring-brand-500 outline-none"
                   >
                     {isResponderOrAdmin ? (
                       <>
@@ -343,14 +343,14 @@ export const IncidentDetailPage: React.FC = () => {
                       placeholder="e.g. Patrol vehicle arrived on scene; area confirmed clear."
                       value={statusNotes}
                       onChange={(e) => setStatusNotes(e.target.value)}
-                      className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                      className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"
                     />
                     <button
                       type="submit"
                       disabled={updating}
                       className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
                     >
-                      <Send className="w-3.5 h-3.5 text-teal-400" />
+                      <Send className="w-3.5 h-3.5 text-brand-400" />
                       Post
                     </button>
                   </div>
@@ -388,7 +388,7 @@ export const IncidentDetailPage: React.FC = () => {
       {/* Chronological Audit Timeline */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-teal-600" />
+          <Clock className="w-4 h-4 text-brand-600" />
           <h3 className="font-bold text-slate-900 text-sm">Chronological Audit Timeline</h3>
         </div>
 

@@ -148,11 +148,11 @@ export const CopilotPanel: React.FC = () => {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-[1000] flex items-center gap-1 rounded-full border border-blue-100 bg-white py-1 pl-1 pr-4 text-sm font-semibold text-slate-800 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 transition"
+          className={`fixed right-4 sm:right-5 z-[1000] flex items-center gap-1 rounded-full border border-blue-100 bg-white p-1 sm:pr-4 text-sm font-semibold text-slate-800 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 transition ${user ? 'bottom-[calc(84px+env(safe-area-inset-bottom))] lg:bottom-5' : 'bottom-5'}`}
           aria-label={`Open ${MASCOT_NAME}, the NSIN safety assistant (Gemini)`}
         >
           <Mascot className="h-12 w-12" />
-          <span className="flex flex-col items-start leading-tight">
+          <span className="hidden sm:flex flex-col items-start leading-tight">
             <span>Ask {MASCOT_NAME}</span>
             <span className="text-[10px] font-medium text-slate-500">Safety help · Gemini</span>
           </span>
