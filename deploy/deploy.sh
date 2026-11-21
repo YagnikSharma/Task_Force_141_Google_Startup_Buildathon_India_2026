@@ -10,7 +10,7 @@ REGION="${REGION:-asia-south1}"
 SQL_INSTANCE="${SQL_INSTANCE:-nsin-db}"
 SERVICE="${SERVICE:-nsin-api}"
 CONNECTION_NAME="${PROJECT_ID}:${REGION}:${SQL_INSTANCE}"
-WEB_ORIGINS="https://${PROJECT_ID}.web.app,https://${PROJECT_ID}.firebaseapp.com"
+WEB_ORIGINS="${WEB_ORIGINS:-https://${PROJECT_ID}.web.app,https://${PROJECT_ID}.firebaseapp.com,https://nsin-landing.web.app,https://nsin-landing.firebaseapp.com}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 
